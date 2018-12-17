@@ -1,0 +1,18 @@
+#navegacion {
+  float:left;
+}
+
+#equipcarac {
+  float:left;
+}
+
+#images{
+  justify-items: center;
+  width: 400px;
+  height: 400px;
+}
+
+body {
+  font-family: 'Indie Flower', cursive;
+}
+
