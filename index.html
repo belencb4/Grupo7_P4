@@ -15,11 +15,38 @@
     <head>
       <h1>Dungeon Master AJAX Game</h1>
     </head>
-    <section id="images">
-        <img id="image" src="media/images/walk1.png" alt="walking">
+    <section id = "grid">
+        <section id = "buttons">
+          <button id = "start" onclick="startGame()"> Start </button>
+          <button id = "save" onclick="saveGame()"> Save </button>
+          <button id = "recover" onclick="recoverGame()"> Recover </button>
+          <button id = "delete" onclick="deleteGame()"> Delete </button>
+          <section id = "commands">
+              <h2>Commands</h2>
+          </section>
+          <section id = "features">
+              <h2>Player Features</h2>
+              <p>Name: </p>
+              <p>Level: </p>
+              <p>Lives: </p>
+              <p>Attack: </p>
+              <p>Defense: </p>
+              <p>Objects: </p>
+          </section>
+        </section>
+        <section id="images">
+            <h2>Player Screen</h2>
+            <img id="imageScreen" src="media/images/walk1.png" alt="walking">
+        </section>
+        <section id = "minimapa">
+            <h2>Minimapa</h2>
+            <canvas id="minimapCanvas" height="300" width="300"></canvas>
+        </section>
     </section>
+    
     <style>
-        @import url('https://fonts.googleapis.com/css?family=Inconsolata|Indie+Flower|Poppins');
+        @import url('https://fonts.googleapis.com/css?family=Indie+Flower');
     </style>
+    
   </body>
 </html>

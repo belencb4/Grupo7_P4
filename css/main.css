@@ -1,10 +1,10 @@
-#navegacion {
-  float:left;
+#grid{
+  display: grid;
+  grid-template-columns: 350px 500px 350px;
+  grid-template-rows: auto;
+  align-content: center;
 }
 
-#equipcarac {
-  float:left;
-}
 
 #images{
   justify-items: center;
@@ -14,5 +14,7 @@
 
 body {
   font-family: 'Indie Flower', cursive;
+  justify-items: center;
 }
+
 

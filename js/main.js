@@ -4,6 +4,7 @@ const upArrow = 38;
 const downArrow = 40;
 const DLetter = 68;
 const ALetter = 65;
+const spaceKey = 32;
 
 const map1 = [
   ["W", "W", "W", "W", "W", "W", "W", "EX", "W", "W"],
@@ -37,17 +38,15 @@ var defense = "1";
 var level = -2;
 var sumX = 0;
 var sumY = 0;
-
-var map = 0;
+var elementAux = 0;
+var shoot = 0;
+var attackStatus = 0;
 
 /* Inicializar el juego */
-  function iniciarJuego() {
-
-  if(level == -2) initPlayer(map1);
-  else if(level == -1) initPlayer(map2);
-  document.onkeydown = checkKey;
+function iniciarJuego() {
 }
 
+/* Init del mapa y del jugador*/
 function initPlayer(currentMap) {
   for (let i = 0; i < 10; i++) {
     for (let j = 0; j < currentMap[i].length; j++) {
@@ -75,7 +74,13 @@ function initPlayer(currentMap) {
   player.xp = 0;
   player.ataque = 2;
   player.defensa = 2;
-  map = currentMap;
+  mapa = currentMap;
+}
+
+function startGame() {
+  if(level == -2) initPlayer(map1);
+  else if(level == -1) initPlayer(map2);
+  document.onkeydown = checkKey;
 }
 
 /* Convierte lo que hay en el mapa en un archivo de imagen */
@@ -115,7 +120,8 @@ function checkKey(e) {
               sumY = 0;
               player.estadoPartida.direccion = 3;
               break;
-      }    
+      }  
+      shoot = 0;  
       changeImage(sumX, sumY);
   }
   else if(event.keyCode == leftArrow) {
@@ -144,6 +150,7 @@ function checkKey(e) {
               player.estadoPartida.direccion = 2;
               break;
       }
+      shoot = 0;
       changeImage(sumX, sumY);
   }
   else if(event.keyCode == upArrow) {
@@ -151,7 +158,7 @@ function checkKey(e) {
           case 3:
               sumY = 0;
               sumX = -1;
-              if (map[player.estadoPartida.y][player.estadoPartida.x - 1] != "W") {                  
+              if (mapa[player.estadoPartida.y][player.estadoPartida.x - 1] != "W") {                  
                 if(player.estadoPartida.y < 9 && player.estadoPartida.y > 0 && player.estadoPartida.x < 9 && player.estadoPartida.x > 0) player.estadoPartida.x--;
               }
               break;
@@ -159,7 +166,7 @@ function checkKey(e) {
           case 2:
               sumX = 1;
               sumY = 0;                
-              if (map[player.estadoPartida.y][player.estadoPartida.x + 1] != "W") {
+              if (mapa[player.estadoPartida.y][player.estadoPartida.x + 1] != "W") {
                 if(player.estadoPartida.x < 9) player.estadoPartida.x++;                    
               }
               break;
@@ -167,7 +174,7 @@ function checkKey(e) {
           case 0:
               sumX = 0;
               sumY = -1;              
-              if (map[player.estadoPartida.y - 1][player.estadoPartida.x] != "W") {
+              if (mapa[player.estadoPartida.y - 1][player.estadoPartida.x] != "W") {
                 if(player.estadoPartida.y > 0) player.estadoPartida.y--;
               }
               break;
@@ -175,11 +182,12 @@ function checkKey(e) {
           case 1:
               sumX = 0;
               sumY = 1;              
-              if (map[player.estadoPartida.y + 1][player.estadoPartida.x] != "W") {
+              if (mapa[player.estadoPartida.y + 1][player.estadoPartida.x] != "W") {
                 if(player.estadoPartida.y < 9) player.estadoPartida.y++;
               }
               break;
       }
+      shoot = 0;
       changeImage(sumX, sumY);
   }
   else if(event.keyCode == downArrow) {
@@ -208,19 +216,28 @@ function checkKey(e) {
               player.estadoPartida.direccion = 0;
               break;
       }
+      shoot = 0;
       changeImage(sumX, sumY);
   }
   else if(event.keyCode == DLetter) {
+    shoot = 0;
     elementFound("defense");
   }
   else if(event.keyCode == ALetter) {
+      shoot = 0;
       elementFound("attack");
+  }
+  else if(event.keyCode == spaceKey) {
+    shoot = 1;
+    if (attackStatus) {
+      elementFound("shoot");
+    }
   }
 }
 
 /* Function that depending of the element in the map, shows the equivalent image */
 function changeImage(sumX, sumY) {
-  switch (map[player.estadoPartida.y + sumY][player.estadoPartida.x + sumX]) {
+  switch (mapa[player.estadoPartida.y + sumY][player.estadoPartida.x + sumX]) {
     case "W":
         elementFound("wall");
         break;
@@ -245,7 +262,7 @@ function changeImage(sumX, sumY) {
 
 /* Function which sets de images */
 function elementFound(element){
-  var imagePlayer = document.getElementById("image");  
+  var imagePlayer = document.getElementById("imageScreen");  
   if (element == "walk") {
       if(walk == "1") {
           walk = "2";
@@ -258,6 +275,7 @@ function elementFound(element){
   else if(element == "attack" || element == "defense") {
     if(element == "attack") attack = controlImageFight(element, attack);
     else if (element == "defense") defense = controlImageFight(element,defense);
+    else if(element == "shoot") controlImageFight(element, attack);
   }
   else {
       imagePlayer.src = "media/images/" + element + ".png";
@@ -266,50 +284,65 @@ function elementFound(element){
 
 /*Function that controls when the player has to see a shield or an arm or nothing at all */
 function controlImageFight(string, element) {
-  var imagePlayer = document.getElementById("image");
+  var imagePlayer = document.getElementById("imageScreen");
+  if (string != elementAux) element = "1";
   if(element == "1"){ // in attack mode    
-    if(map[player.estadoPartida.y+ sumY][player.estadoPartida.x + sumX] == "B") {
+    if(mapa[player.estadoPartida.y+ sumY][player.estadoPartida.x + sumX] == "B") {
       element = "2"; //Attack to blank
     }
-    else if(map[player.estadoPartida.y + sumY][player.estadoPartida.x + sumX] == "EN") {
+    else if(mapa[player.estadoPartida.y + sumY][player.estadoPartida.x + sumX] == "EN") {
       element = "2";
     }
-    else if(map[player.estadoPartida.y + sumY][player.estadoPartida.x + sumX] == "E") {
+    else if(mapa[player.estadoPartida.y + sumY][player.estadoPartida.x + sumX] == "E") {
       element = "3"; //Attack to enemy
     }
-    else if(map[player.estadoPartida.y + sumY][player.estadoPartida.x + sumX] == "O") {
+    else if(mapa[player.estadoPartida.y + sumY][player.estadoPartida.x + sumX] == "O") {
       element = "4"; //Attack to object
     }
-    else if(map[player.estadoPartida.y + sumY][player.estadoPartida.x + sumX] == "W") {
+    else if(mapa[player.estadoPartida.y + sumY][player.estadoPartida.x + sumX] == "W") {
       element = "5"; //Attack to wall
     }
-    else if(map[player.estadoPartida.y + sumY][player.estadoPartida.x + sumX] == "EX") {
+    else if(mapa[player.estadoPartida.y + sumY][player.estadoPartida.x + sumX] == "EX") {
       element = "6"; //Attack to exit door
     }
-    
+    if (string == "attack") attackStatus = 1;
     imagePlayer.src = "media/images/" + string + element + ".png";
   }
   else {  
-    if(map[player.estadoPartida.y + sumY][player.estadoPartida.x + sumX] == "B") {
+    if(mapa[player.estadoPartida.y + sumY][player.estadoPartida.x + sumX] == "B") {
+      if (shoot) {
+        setTimeout(function(){  
+         
+          
+          imagePlayer.src = "media/images/shoot2.png";
+          ;},100);
+          string = "attack2";
+          element = 1;
+          shoot = 0;
+      }
+      else {
+        string = "walk1";
+      }
+    }
+    else if(mapa[player.estadoPartida.y + sumY][player.estadoPartida.x + sumX] == "EN") {
       string = "walk1";
     }
-    else if(map[player.estadoPartida.y + sumY][player.estadoPartida.x + sumX] == "EN") {
-      string = "walk1";
-    }
-    else if(map[player.estadoPartida.y + sumY][player.estadoPartida.x + sumX] == "E") {
+    else if(mapa[player.estadoPartida.y + sumY][player.estadoPartida.x + sumX] == "E") {
       string = "enemy";
     }
-    else if(map[player.estadoPartida.y + sumY][player.estadoPartida.x + sumX] == "O") {
+    else if(mapa[player.estadoPartida.y + sumY][player.estadoPartida.x + sumX] == "O") {
       string = "object";
     }
-    else if(map[player.estadoPartida.y + sumY][player.estadoPartida.x + sumX] == "W") {
+    else if(mapa[player.estadoPartida.y + sumY][player.estadoPartida.x + sumX] == "W") {
       string = "wall";
     }
-    else if(map[player.estadoPartida.y + sumY][player.estadoPartida.x + sumX] == "EX") {
+    else if(mapa[player.estadoPartida.y + sumY][player.estadoPartida.x + sumX] == "EX") {
       string = "door";
     }    
     element = "1";
+    if (string == "attack") attackStatus = 0;
     imagePlayer.src = "media/images/" + string + ".png";
   }
+  elementAux = string;
   return element;
 }
