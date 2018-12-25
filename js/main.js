@@ -346,3 +346,34 @@ function controlImageFight(string, element) {
   elementAux = string;
   return element;
 }
+
+/*var ajaxASYNC = {
+    request : function request(url){
+        var xhr = new XMLHttpRequest();
+        xhr.addEventListener("load", reqListener);
+        xhr.open("GET", url, true);
+        xhr.send();
+    }
+
+};
+
+function reqListener () {
+    let object = JSON.parse(this.responseText);
+    console.log(this.response);
+}
+
+window.onload =    ajaxASYNC.request("http://puigpedros.salleurl.edu/pwi/pac4/ataque.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&ataque=1&defensa=2");*/
+/*
+//intent de jquery no va
+$.ajax({
+    url: "http://puigpedros.salleurl.edu/pwi/pac4/ataque.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&ataque=1&defensa=2",
+    statusCode: {
+        404: function() {
+          alert( "page not found" );
+        }
+      },
+    context: document.body
+  }).done(function() {
+  });
+
+window.onload = $.ajax;*/
