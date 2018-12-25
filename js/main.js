@@ -364,8 +364,8 @@ function reqListener () {
 
 window.onload =    ajaxASYNC.request("http://puigpedros.salleurl.edu/pwi/pac4/ataque.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&ataque=1&defensa=2");*/
 /*
-//intent de jquery no va
-$.ajax({
+var AJAX = $.ajax({
+    method: "GET",
     url: "http://puigpedros.salleurl.edu/pwi/pac4/ataque.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&ataque=1&defensa=2",
     statusCode: {
         404: function() {
@@ -376,4 +376,4 @@ $.ajax({
   }).done(function() {
   });
 
-window.onload = $.ajax;*/
+window.onload = AJAX;*/
