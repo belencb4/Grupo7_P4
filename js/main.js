@@ -32,6 +32,7 @@ const map2 = [
   ["W", "W", "W", "W", "W", "W", "W", "EN", "W", "W"],
 ]; 
 
+var pressedSubmit = 0;
 var walk = "1";
 var attack = "1";
 var defense = "1";
@@ -39,15 +40,13 @@ var level = -2;
 var sumX = 0;
 var sumY = 0;
 var elementAux = 0;
-var shoot = 0;
-var attackStatus = 0;
 
 /* Inicializar el juego */
 function iniciarJuego() {
 }
 
 /* Init del mapa y del jugador*/
-function initPlayer(currentMap) {
+function initPlayerPosition(currentMap) {
   for (let i = 0; i < 10; i++) {
     for (let j = 0; j < currentMap[i].length; j++) {
       let element = currentMap[i][j];
@@ -69,18 +68,26 @@ function initPlayer(currentMap) {
       }
     }
   }
-  player.nivel = level;
-  player.vida = 10;
-  player.xp = 0;
-  player.ataque = 2;
-  player.defensa = 2;
+  
   mapa = currentMap;
 }
 
+function initPlayer() {
+  player.nivel = level;
+  player.vida = 10;
+  player.xp = 0;
+  player.ataque = 0;
+  player.defensa = 0;
+}
+
+
 function startGame() {
-  if(level == -2) initPlayer(map1);
-  else if(level == -1) initPlayer(map2);
-  document.onkeydown = checkKey;
+    initPlayer();
+    showpopup();
+    if(level == -2) initPlayerPosition(map1);
+    else if(level == -1) initPlayerPosition(map2);
+    document.onkeydown = checkKey;
+    pressedSubmit = 0;
 }
 
 /* Convierte lo que hay en el mapa en un archivo de imagen */
@@ -121,7 +128,6 @@ function checkKey(e) {
               player.estadoPartida.direccion = 3;
               break;
       }  
-      shoot = 0;  
       changeImage(sumX, sumY);
   }
   else if(event.keyCode == leftArrow) {
@@ -150,7 +156,6 @@ function checkKey(e) {
               player.estadoPartida.direccion = 2;
               break;
       }
-      shoot = 0;
       changeImage(sumX, sumY);
   }
   else if(event.keyCode == upArrow) {
@@ -158,7 +163,7 @@ function checkKey(e) {
           case 3:
               sumY = 0;
               sumX = -1;
-              if (mapa[player.estadoPartida.y][player.estadoPartida.x - 1] != "W") {                  
+              if (mapa[player.estadoPartida.y][player.estadoPartida.x - 1] != "W" && mapa[player.estadoPartida.y][player.estadoPartida.x - 1] != "E") {                  
                 if(player.estadoPartida.y < 9 && player.estadoPartida.y > 0 && player.estadoPartida.x < 9 && player.estadoPartida.x > 0) player.estadoPartida.x--;
               }
               break;
@@ -166,7 +171,7 @@ function checkKey(e) {
           case 2:
               sumX = 1;
               sumY = 0;                
-              if (mapa[player.estadoPartida.y][player.estadoPartida.x + 1] != "W") {
+              if (mapa[player.estadoPartida.y][player.estadoPartida.x + 1] != "W" && mapa[player.estadoPartida.y][player.estadoPartida.x + 1] != "E") {
                 if(player.estadoPartida.x < 9) player.estadoPartida.x++;                    
               }
               break;
@@ -174,7 +179,7 @@ function checkKey(e) {
           case 0:
               sumX = 0;
               sumY = -1;              
-              if (mapa[player.estadoPartida.y - 1][player.estadoPartida.x] != "W") {
+              if (mapa[player.estadoPartida.y - 1][player.estadoPartida.x] != "W" && mapa[player.estadoPartida.y - 1][player.estadoPartida.x] != "W") {
                 if(player.estadoPartida.y > 0) player.estadoPartida.y--;
               }
               break;
@@ -182,12 +187,11 @@ function checkKey(e) {
           case 1:
               sumX = 0;
               sumY = 1;              
-              if (mapa[player.estadoPartida.y + 1][player.estadoPartida.x] != "W") {
+              if (mapa[player.estadoPartida.y + 1][player.estadoPartida.x] != "W" && mapa[player.estadoPartida.y + 1][player.estadoPartida.x] != "E") {
                 if(player.estadoPartida.y < 9) player.estadoPartida.y++;
               }
               break;
       }
-      shoot = 0;
       changeImage(sumX, sumY);
   }
   else if(event.keyCode == downArrow) {
@@ -216,22 +220,13 @@ function checkKey(e) {
               player.estadoPartida.direccion = 0;
               break;
       }
-      shoot = 0;
       changeImage(sumX, sumY);
   }
   else if(event.keyCode == DLetter) {
-    shoot = 0;
     elementFound("defense");
   }
   else if(event.keyCode == ALetter) {
-      shoot = 0;
       elementFound("attack");
-  }
-  else if(event.keyCode == spaceKey) {
-    shoot = 1;
-    if (attackStatus) {
-      elementFound("shoot");
-    }
   }
 }
 
@@ -272,17 +267,12 @@ function elementFound(element){
       }
       imagePlayer.src = "media/images/" + element + walk + ".png";
   } 
-  else if(element == "attack" || element == "defense") {
-    if(element == "attack") attack = controlImageFight(element, attack);
-    else if (element == "defense") defense = controlImageFight(element,defense);
-    else if(element == "shoot") controlImageFight(element, attack);
-  }
   else {
       imagePlayer.src = "media/images/" + element + ".png";
   }
 }
 
-/*Function that controls when the player has to see a shield or an arm or nothing at all */
+/*Function that controls when the player has to see a shield or a weapon or nothing at all */
 function controlImageFight(string, element) {
   var imagePlayer = document.getElementById("imageScreen");
   if (string != elementAux) element = "1";
@@ -305,24 +295,11 @@ function controlImageFight(string, element) {
     else if(mapa[player.estadoPartida.y + sumY][player.estadoPartida.x + sumX] == "EX") {
       element = "6"; //Attack to exit door
     }
-    if (string == "attack") attackStatus = 1;
     imagePlayer.src = "media/images/" + string + element + ".png";
   }
   else {  
     if(mapa[player.estadoPartida.y + sumY][player.estadoPartida.x + sumX] == "B") {
-      if (shoot) {
-        setTimeout(function(){  
-         
-          
-          imagePlayer.src = "media/images/shoot2.png";
-          ;},100);
-          string = "attack2";
-          element = 1;
-          shoot = 0;
-      }
-      else {
         string = "walk1";
-      }
     }
     else if(mapa[player.estadoPartida.y + sumY][player.estadoPartida.x + sumX] == "EN") {
       string = "walk1";
@@ -340,12 +317,41 @@ function controlImageFight(string, element) {
       string = "door";
     }    
     element = "1";
-    if (string == "attack") attackStatus = 0;
     imagePlayer.src = "media/images/" + string + ".png";
   }
   elementAux = string;
   return element;
 }
+
+function showpopup() {
+  $("#popup_box").fadeToggle();
+  $("#popup_box").css({"visibility":"visible","display":"block"});
+  document.body.style.backgroundColor = "rgba(22, 22, 22, 0.637)";
+}
+
+function hidepopup() {
+  $("#popup_box").fadeToggle();
+  $("#popup_box").css({"visibility":"hidden","display":"none"});
+  document.body.style.backgroundColor = "white";
+}
+
+
+function getValueForm() {
+  pressedSubmit = 1;
+  var name = document.getElementById("nameText");
+  if (name.value != "") {
+    var idName = document.getElementById("name");
+    idName.innerHTML = "Name: " + name.value;
+    document.getElementById("lives").innerHTML = "Lives: " + player.vida;
+    document.getElementById("level").innerHTML = "Level: " + player.nivel;
+    document.getElementById("attack").innerHTML = "Attack: " + player.ataque;
+    document.getElementById("defense").innerHTML = "Defense: " + player.defensa;
+    hidepopup();
+  } 
+  else {
+    alert("Insert a name please");
+  }
+} 
 
 /*var ajaxASYNC = {
     request : function request(url){
@@ -354,9 +360,7 @@ function controlImageFight(string, element) {
         xhr.open("GET", url, true);
         xhr.send();
     }
-
 };
-
 function reqListener () {
     let object = JSON.parse(this.responseText);
     console.log(this.response);
@@ -375,5 +379,6 @@ var AJAX = $.ajax({
     context: document.body
   }).done(function() {
   });
-
 window.onload = AJAX;*/
+
+

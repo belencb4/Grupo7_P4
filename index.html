@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="description" content="Dungeon Master AJAX Game" />
     <meta name="keywords" content="dungeon, ajax, javascript, css" />
-    <meta name="author" content="Daniel Amo" />
+    <meta name="author" content="Sofia, Belen and Dunya" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="stylesheet" href="css/main.css" type="text/css" media="all" />
     <script src="http://code.jquery.com/jquery-1.10.2.js"></script>
@@ -20,21 +20,23 @@
     </head>
     <section id = "grid">
         <section id = "buttons">
-          <button id = "start" onclick="startGame()"> Start </button>
-          <button id = "save" onclick="saveGame()"> Save </button>
-          <button id = "recover" onclick="recoverGame()"> Recover </button>
-          <button id = "delete" onclick="deleteGame()"> Delete </button>
-          <section id = "commands">
-              <h2>Commands</h2>
+          <button class = "start" onclick="startGame()"> Start </button>
+          <button class = "save" onclick="saveGame()"> Save </button>
+          <button class = "recover" onclick="recoverGame()"> Recover </button>
+          <button class = "delete" onclick="deleteGame()"> Delete </button>
+          
+          <section class = "commands">
+
           </section>
           <section id = "features">
-              <h2>Player Features</h2>
-              <p>Name: </p>
-              <p>Level: </p>
-              <p>Lives: </p>
-              <p>Attack: </p>
-              <p>Defense: </p>
-              <p>Objects: </p>
+              <p id="name">Name: </p>
+              <p id="level">Level: </p>
+              <p id="lives">Lives: </p>
+              <p id="attack">Attack: </p>
+              <p id="defense">Defense: </p>
+              <section id="attackButton">
+                <button class = "fight" onclick="fightEnemy()"> Attack </button>
+             </section> 
           </section>
         </section>
         <section id="images">
@@ -42,10 +44,19 @@
             <img id="imageScreen" src="media/images/walk1.png" alt="walking">
         </section>
         <section id = "minimapa">
-            <h2>Minimapa</h2>
-            <canvas id="minimapCanvas" height="300" width="300"></canvas>
-        </section>
+            <h2>Map</h2>
+             <img id="miniMap" src="media/images/map1.png" alt="map">
+            <canvas id="minimapCanvas" height="300" width="300"></canvas>  
+        </section>   
     </section>
+
+    <div id="popup_box">
+        <form method="GET" action="" id="info_text">
+            Name:
+            <input id="nameText" type="text" name="firstname"><br>
+            <input type="button" id="submit_button" value="Submit" onclick="getValueForm()">
+        </form>
+     </div>
     
     <style>
         @import url('https://fonts.googleapis.com/css?family=Indie+Flower');
