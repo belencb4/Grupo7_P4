@@ -2,8 +2,6 @@ const rightArrow = 39;
 const leftArrow = 37;
 const upArrow = 38;
 const downArrow = 40;
-const DLetter = 68;
-const ALetter = 65;
 const spaceKey = 32;
 
 const map1 = [
@@ -32,7 +30,6 @@ const map2 = [
   ["W", "W", "W", "W", "W", "W", "W", "EN", "W", "W"],
 ]; 
 
-var pressedSubmit = 0;
 var walk = "1";
 var attack = "1";
 var defense = "1";
@@ -40,6 +37,7 @@ var level = -2;
 var sumX = 0;
 var sumY = 0;
 var elementAux = 0;
+var counterEnemies = 0;
 
 /* Inicializar el juego */
 function iniciarJuego() {
@@ -80,9 +78,9 @@ function initPlayer() {
   player.defensa = 0;
 }
 
-
 function startGame() {
     initPlayer();
+    enemigo.vida = 3;
     showpopup();
     if(level == -2) initPlayerPosition(map1);
     else if(level == -1) initPlayerPosition(map2);
@@ -261,11 +259,26 @@ function elementFound(element){
       }
       imagePlayer.src = "media/images/" + element + walk + ".png";
   } 
+  else if (element == "enemy") {
+      if(counterEnemies < 4) {
+        enemigo.ataque = counterEnemies + 1;
+        enemigo.defensa = counterEnemies;
+      }
+      else{
+        enemigo.ataque = counterEnemies - 2;
+        enemigo.defensa = counterEnemies - 1;
+      }
+      enemigo.xp = counterEnemies*10;
+      enemigo.img = "media/images/" + element + ".png"; //TODO change image enemy
+      counterEnemies++;
+      imagePlayer.src = enemigo.img;
+      //TODO: añadir objetos
+      console.log(enemigo);
+  }
   else {
-      imagePlayer.src = "media/images/" + element + ".png";
+    imagePlayer.src = "media/images/" + element + ".png";
   }
 }
-
 
 function showpopup() {
   $("#popup_box").fadeToggle();
@@ -286,6 +299,7 @@ function getValueForm() {
   if (name.value != "") {
     var idName = document.getElementById("name");
     idName.innerHTML = "Name: " + name.value;
+    player.nombre = name.value;
     document.getElementById("lives").innerHTML = "Lives: " + player.vida;
     document.getElementById("level").innerHTML = "Level: " + player.nivel;
     document.getElementById("attack").innerHTML = "Attack: " + player.ataque;
