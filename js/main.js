@@ -222,12 +222,6 @@ function checkKey(e) {
       }
       changeImage(sumX, sumY);
   }
-  else if(event.keyCode == DLetter) {
-    elementFound("defense");
-  }
-  else if(event.keyCode == ALetter) {
-      elementFound("attack");
-  }
 }
 
 /* Function that depending of the element in the map, shows the equivalent image */
@@ -272,56 +266,6 @@ function elementFound(element){
   }
 }
 
-/*Function that controls when the player has to see a shield or a weapon or nothing at all */
-function controlImageFight(string, element) {
-  var imagePlayer = document.getElementById("imageScreen");
-  if (string != elementAux) element = "1";
-  if(element == "1"){ // in attack mode    
-    if(mapa[player.estadoPartida.y+ sumY][player.estadoPartida.x + sumX] == "B") {
-      element = "2"; //Attack to blank
-    }
-    else if(mapa[player.estadoPartida.y + sumY][player.estadoPartida.x + sumX] == "EN") {
-      element = "2";
-    }
-    else if(mapa[player.estadoPartida.y + sumY][player.estadoPartida.x + sumX] == "E") {
-      element = "3"; //Attack to enemy
-    }
-    else if(mapa[player.estadoPartida.y + sumY][player.estadoPartida.x + sumX] == "O") {
-      element = "4"; //Attack to object
-    }
-    else if(mapa[player.estadoPartida.y + sumY][player.estadoPartida.x + sumX] == "W") {
-      element = "5"; //Attack to wall
-    }
-    else if(mapa[player.estadoPartida.y + sumY][player.estadoPartida.x + sumX] == "EX") {
-      element = "6"; //Attack to exit door
-    }
-    imagePlayer.src = "media/images/" + string + element + ".png";
-  }
-  else {  
-    if(mapa[player.estadoPartida.y + sumY][player.estadoPartida.x + sumX] == "B") {
-        string = "walk1";
-    }
-    else if(mapa[player.estadoPartida.y + sumY][player.estadoPartida.x + sumX] == "EN") {
-      string = "walk1";
-    }
-    else if(mapa[player.estadoPartida.y + sumY][player.estadoPartida.x + sumX] == "E") {
-      string = "enemy";
-    }
-    else if(mapa[player.estadoPartida.y + sumY][player.estadoPartida.x + sumX] == "O") {
-      string = "object";
-    }
-    else if(mapa[player.estadoPartida.y + sumY][player.estadoPartida.x + sumX] == "W") {
-      string = "wall";
-    }
-    else if(mapa[player.estadoPartida.y + sumY][player.estadoPartida.x + sumX] == "EX") {
-      string = "door";
-    }    
-    element = "1";
-    imagePlayer.src = "media/images/" + string + ".png";
-  }
-  elementAux = string;
-  return element;
-}
 
 function showpopup() {
   $("#popup_box").fadeToggle();
@@ -367,10 +311,10 @@ function reqListener () {
 }
 
 window.onload =    ajaxASYNC.request("http://puigpedros.salleurl.edu/pwi/pac4/ataque.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&ataque=1&defensa=2");*/
-/*
+
 var AJAX = $.ajax({
     method: "GET",
-    url: "http://puigpedros.salleurl.edu/pwi/pac4/ataque.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&ataque=1&defensa=2",
+    url: "http://puigpedros.salleurl.edu/pwi/pac4/ataque.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&ataque=" + player.ataque + "&defensa="+ enemigo.defensa,
     statusCode: {
         404: function() {
           alert( "page not found" );
@@ -379,6 +323,6 @@ var AJAX = $.ajax({
     context: document.body
   }).done(function() {
   });
-window.onload = AJAX;*/
+window.onload = AJAX;
 
 
