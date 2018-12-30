@@ -31,16 +31,31 @@ const map2 = [
 ]; 
 
 var walk = "1";
-var attack = "1";
-var defense = "1";
 var level = -2;
 var sumX = 0;
 var sumY = 0;
-var elementAux = 0;
 var counterEnemies = 0;
+var turnFight = 0;
+var fighting = 0;
+var attackValue = 0;
+var defenseValue = 0;
+let object = 0;
+let slot = 1;
+let running = 1;
 
 /* Inicializar el juego */
 function iniciarJuego() {
+}
+
+function initObjetos() {
+  objetos["garrote"] = {ataque:4, defensa:2};
+  objetos["espada"] = {ataque:4, defensa:3};
+  objetos["llave"] = {ataque:1, defensa:0};
+  objetos["pistola"] = {ataque:5, defensa:1};
+  objetos["escudo"] = {ataque:1, defensa:5}
+  objetos["ametralladora"] = {ataque:5, defensa:2};
+  objetos["sarten"] = {ataque:3, defensa:4};
+  //console.log(Object.keys(objetos)[2]);
 }
 
 /* Init del mapa y del jugador*/
@@ -79,13 +94,19 @@ function initPlayer() {
 }
 
 function startGame() {
+  if (running) {
+    running = 0;
     initPlayer();
-    enemigo.vida = 3;
+    enemigo.vida = 8;
+    initObjetos();
     showpopup();
     if(level == -2) initPlayerPosition(map1);
     else if(level == -1) initPlayerPosition(map2);
     document.onkeydown = checkKey;
-    pressedSubmit = 0;
+  }
+  else {
+    alert("You must finish the game before starting a new game");
+  }
 }
 
 /* Convierte lo que hay en el mapa en un archivo de imagen */
@@ -96,10 +117,7 @@ function mapaToImg(x, y) {
 /* Sets de position and orientation of the player at every move */
 function checkKey(e) {
   e = e || window.event;
- 
-  console.log("before x = " + player.estadoPartida.x);
-  console.log("before y = " + player.estadoPartida.y);
-  console.log("orientation: " + player.estadoPartida.direccion)
+  if(!fighting) {
   if(event.keyCode == rightArrow) {
       switch (player.estadoPartida.direccion) {
           case 3: //Oeste - Left
@@ -220,6 +238,7 @@ function checkKey(e) {
       }
       changeImage(sumX, sumY);
   }
+  }
 }
 
 /* Function that depending of the element in the map, shows the equivalent image */
@@ -272,8 +291,14 @@ function elementFound(element){
       enemigo.img = "media/images/" + element + ".png"; //TODO change image enemy
       counterEnemies++;
       imagePlayer.src = enemigo.img;
-      //TODO: añadir objetos
-      console.log(enemigo);
+      getObjectsFight();
+      attackValue = player.ataque;
+      defenseValue = enemigo.defensa;
+      enemigo.vida = 8;
+      ajaxASYNC.request("http://puigpedros.salleurl.edu/pwi/pac4/ataque.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&ataque="+ attackValue + "&defensa="+ defenseValue);
+      let fightData = document.getElementById("fight");
+      fightData.style.display = "block";
+      setTimeout(function(){ fightEnemy(); }, 1000);      //TODO: añadir objetos
   }
   else {
     imagePlayer.src = "media/images/" + element + ".png";
@@ -294,24 +319,35 @@ function hidepopup() {
 
 
 function getValueForm() {
-  pressedSubmit = 1;
   var name = document.getElementById("nameText");
   if (name.value != "") {
     var idName = document.getElementById("name");
     idName.innerHTML = "Name: " + name.value;
     player.nombre = name.value;
-    document.getElementById("lives").innerHTML = "Lives: " + player.vida;
-    document.getElementById("level").innerHTML = "Level: " + player.nivel;
-    document.getElementById("attack").innerHTML = "Attack: " + player.ataque;
-    document.getElementById("defense").innerHTML = "Defense: " + player.defensa;
+    refreshData();
     hidepopup();
   } 
   else {
     alert("Insert a name please");
   }
-} 
+}
 
-/*var ajaxASYNC = {
+function refreshData() {
+  document.getElementById("lives").innerHTML = "Lives: " + player.vida;
+  document.getElementById("level").innerHTML = "Level: " + player.nivel;
+  document.getElementById("attack").innerHTML = "Attack: " + player.ataque;
+  document.getElementById("defense").innerHTML = "Defense: " + player.defensa;
+  document.getElementById("xp").innerHTML = "Experiencia: " + player.xp;
+  document.getElementById("vidasEnemigo").innerHTML = "Enemy lives: " + enemigo.vida;
+  if (!turnFight) {
+    document.getElementById("turn").innerHTML = "Turn: Player";
+  }
+  else {
+    document.getElementById("turn").innerHTML = "Turn: Enemy";
+  }
+}
+
+var ajaxASYNC = {
     request : function request(url){
         var xhr = new XMLHttpRequest();
         xhr.addEventListener("load", reqListener);
@@ -320,23 +356,199 @@ function getValueForm() {
     }
 };
 function reqListener () {
-    let object = JSON.parse(this.responseText);
-    console.log(this.response);
+    object = JSON.parse(this.responseText);
+}
+ 
+function getObjectsFight() {
+  //TODO implement
+  player.manoderecha = "espada";
+  player.manoizquierda = "llave";
+  player.ataque = player.ataque + objetos[player.manoderecha].ataque + objetos[player.manoizquierda].ataque;
+  player.defensa = player.defensa + objetos[player.manoderecha].defensa + objetos[player.manoizquierda].defensa;
+  refreshData();
 }
 
-window.onload =    ajaxASYNC.request("http://puigpedros.salleurl.edu/pwi/pac4/ataque.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&ataque=1&defensa=2");*/
+function fightEnemy() {  
+  refreshData();
+  fighting = 1;  
 
-var AJAX = $.ajax({
-    method: "GET",
-    url: "http://puigpedros.salleurl.edu/pwi/pac4/ataque.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&ataque=" + player.ataque + "&defensa="+ enemigo.defensa,
-    statusCode: {
-        404: function() {
-          alert( "page not found" );
+  if (turnFight == 0) { //player's turn    
+    turnFight++;
+    attackValue = enemigo.ataque;
+    defenseValue = player.defensa;
+    if (object > 0) {
+      enemigo.vida = enemigo.vida - object;
+    }
+    else if (object < 0){
+      player.vida = player.vida + object; //Se suma porque object negativo
+    }
+  }
+  else {
+    turnFight = 0;
+    attackValue = player.ataque;
+    defenseValue = enemigo.defensa;
+    
+    if (object > 0) {
+      player.vida = player.vida - object;
+    }
+    else if (object < 0){
+      enemigo.vida = enemigo.vida + object; //Se suma porque object negativo
+    }
+  }
+
+  if (enemigo.vida <= 0 || player.vida <= 0){
+    if (enemigo.vida < 0) {
+      enemigo.vida = 0;
+    }
+    else if(player.vida < 0) {
+      player.vida = 0;
+    }
+    setTimeout(function(){ endFight();}, 1000);
+  }
+  else {
+    ajaxASYNC.request("http://puigpedros.salleurl.edu/pwi/pac4/ataque.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&ataque="+ attackValue + "&defensa="+ defenseValue);
+    setTimeout(function(){ fightEnemy(); }, 1000);
+  }
+}
+
+function endFight(){
+  let fightData = document.getElementById("fight");
+  fightData.style.display = "none";
+  fighting = 0;
+  player.ataque = 0;
+  player.defensa = 0;
+  if (enemigo.vida <= 0) {
+    elementFound("walk");
+    player.xp = enemigo.xp;
+    for(var i = -1; i < 2; i++) {
+      for(var j = -1; j < 2; j++){
+        if (mapa[player.estadoPartida.y + i][player.estadoPartida.x + j] == "E") {
+          mapa[player.estadoPartida.y + i][player.estadoPartida.x + j] = "B";
         }
-      },
-    context: document.body
-  }).done(function() {
+      } 
+    }
+    refreshData();
+  }
+  else if(player.vida == 0) {
+    running = 1;
+    //TODO GameOver
+  }  
+}
+
+function saveGame() {
+  console.log("press");
+  
+  partida["player"] = player;
+  partida["mapa"] = mapa;
+  partida["objetos"] = objetos;
+  partida["counterEnemies"] = counterEnemies;
+  partida["level"] = level;
+  
+  $.post('http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot=1', JSON.stringify({hola: "hola"}), function(){ 
+      alert("success");
   });
-window.onload = AJAX;
+}
+
+/*var esborrarPartida = $.ajax({
+  type: "DELETE",
+  url: "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot="+slot, 
+  statusCode: {
+    404: function() {
+      alert( "No existeix cap partida en el slot indicat" );
+    },
+  },
+  });
+
+//API >> Comunicació JSON 
+var guardarPartida = $.ajax({
+  type: "POST",
+  url: "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot="+slot, 
+  contentType: 'application/json', 
+  data: JSON.stringify(partida),
+  statusCode: {
+    404: function() {
+      alert( "El slot no está libre, borra un slot y podras guardarla" );
+    }
+  },
+});
+
+/*
+var descarregarPartida = $.ajax({
+  type: "GET",
+  url: "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot="+slot, 
+  contentType: 'application/json', 
+  statusCode: {
+    404: function() {
+      alert( "No existeix cap partida en el slot indicat" );
+    },
+  },
+  });
+
+var descarregarLlistaSlots = $.ajax({
+  type: "GET",
+  url: "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145", 
+  contentType: 'application/json', 
+  statusCode: {
+    404: function() {
+      alert( "No existeix cap partida en el slot indicat" );
+    },
+  },
+  });
+
+var esborrarPartida = $.ajax({
+  type: "DELETE",
+  url: "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot="+slot, 
+  statusCode: {
+    404: function() {
+      alert( "No existeix cap partida en el slot indicat" );
+    },
+  },
+  });
 
 
+var atacEnemic = $.ajax({
+  method: "GET",
+  url: "http://puigpedros.salleurl.edu/pwi/pac4/ataque.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&ataque="+enemigo.ataque+"&defensa="+enemigo.defensa,
+  
+  statusCode: {
+    404: function() {
+      alert( "No ha funcionat" );
+    },
+    200: function restarVides(){
+      player.vida+=AJAX;
+      if(player.vida>10){
+        player.vida = 10;
+      }else if(player.vida<0){
+        player.vida = 0;
+      }  
+    }
+  },
+  context: document.body
+}).done(function() {
+});
+
+var atacJugador = $.ajax({
+  method: "GET",
+   url: "http://puigpedros.salleurl.edu/pwi/pac4/ataque.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&ataque="+player.ataque+"&defensa="+player.defensa,
+  statusCode: {
+    404: function() {
+      alert( "No ha funcionat" );
+    },
+    200: function restarVides(){
+      enemigo.vida+=AJAX;
+      if(enemigo.vida>3){
+        enemigo.vida = 3;
+      }else if(enemigo.vida<0){
+        enemigo.vida = 0;
+      }
+    }  
+  },
+  context: document.body
+}).done(function() {
+});
+
+*/
+
+// Variables que necessitem que siguin globals : slot(nueva,1,2), partida(objecte que conte tot el que volem guardar de la partida 
+// entenc que player,objetos i el mapa ja que si a la partida que ha guardat havia recollit tot ho haurem de canviar del mapa i 
+// sera aixo el que enviem), player  i enemigo entenc que ja son globals no?? 
