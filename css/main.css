@@ -103,10 +103,6 @@ h2, h1 {
  cursor:pointer;
 }
 
-.fight {
-  background-color: rgb(94, 59, 46);
-  height: 60px;
-  width: 130px;
-  margin-left: 90px;
-  margin-top: 40px;
+#fight {
+  display: none;
 }
