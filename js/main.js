@@ -326,17 +326,97 @@ function reqListener () {
 
 window.onload =    ajaxASYNC.request("http://puigpedros.salleurl.edu/pwi/pac4/ataque.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&ataque=1&defensa=2");*/
 
-var AJAX = $.ajax({
-    method: "GET",
-    url: "http://puigpedros.salleurl.edu/pwi/pac4/ataque.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&ataque=" + player.ataque + "&defensa="+ enemigo.defensa,
-    statusCode: {
-        404: function() {
-          alert( "page not found" );
-        }
-      },
-    context: document.body
-  }).done(function() {
+
+//API >> Atac 
+
+var atacEnemic = $.ajax({
+  method: "GET",
+  url: "http://puigpedros.salleurl.edu/pwi/pac4/ataque.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&ataque="+enemigo.ataque+"&defensa="+enemigo.defensa,
+  
+  statusCode: {
+    404: function() {
+      alert( "No ha funcionat" );
+    },
+    200: function restarVides(){
+      player.vida+=AJAX;
+      if(player.vida>10){
+        player.vida = 10;
+      }else if(player.vida<0){
+        player.vida = 0;
+      }  
+    }
+  },
+  context: document.body
+}).done(function() {
+});
+
+var atacJugador = $.ajax({
+  method: "GET",
+   url: "http://puigpedros.salleurl.edu/pwi/pac4/ataque.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&ataque="+player.ataque+"&defensa="+player.defensa,
+  statusCode: {
+    404: function() {
+      alert( "No ha funcionat" );
+    },
+    200: function restarVides(){
+      enemigo.vida+=AJAX;
+      if(enemigo.vida>3){
+        enemigo.vida = 3;
+      }else if(enemigo.vida<0){
+        enemigo.vida = 0;
+      }
+    }  
+  },
+  context: document.body
+}).done(function() {
+});
+
+//API >> Comunicació JSON 
+var guardarPartida = $.ajax({
+  type: "POST",
+  url: "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot="+slot, 
+  contentType: 'application/json', 
+  data: JSON.stringify(partida),
+  statusCode: {
+    404: function() {
+      alert( "El slot no esta lliure, esborra un slot i podras guardarla" );
+    }
+  },
+});
+var descarregarPartida = $.ajax({
+  type: "GET",
+  url: "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot="+slot, 
+  contentType: 'application/json', 
+  statusCode: {
+    404: function() {
+      alert( "No existeix cap partida en el slot indicat" );
+    },
+  },
   });
-window.onload = AJAX;
+
+  var descarregarLlistaSlots = $.ajax({
+    type: "GET",
+    url: "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145", 
+    contentType: 'application/json', 
+    statusCode: {
+      404: function() {
+        alert( "No existeix cap partida en el slot indicat" );
+      },
+    },
+    });
+
+    var esborrarPartida = $.ajax({
+      type: "DELETE",
+      url: "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot="+slot, 
+      statusCode: {
+        404: function() {
+          alert( "No existeix cap partida en el slot indicat" );
+        },
+      },
+      });
+
+// Variables que necessitem que siguin globals : slot(nueva,1,2), partida(objecte que conte tot el que volem guardar de la partida 
+// entenc que player,objetos i el mapa ja que si a la partida que ha guardat havia recollit tot ho haurem de canviar del mapa i 
+// sera aixo el que enviem), player  i enemigo entenc que ja son globals no?? 
+
 
 
