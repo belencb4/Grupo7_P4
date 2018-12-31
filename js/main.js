@@ -493,15 +493,15 @@ function saveGame() {
   partida["objetos"] = objetos;
   partida["counterEnemies"] = counterEnemies;
   partida["level"] = level;
-  
- /* $.post('http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot=1', JSON.stringify({hola: "hola"}), function(){ 
+
+  $.post('http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot=1', "json=" + JSON.stringify(partida), function(){ 
       alert("success");
-  });*/
+  });
 }
 
-/*var esborrarPartida = $.ajax({
+var esborrarPartida = $.ajax({
   type: "DELETE",
-  url: "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot="+slot, 
+  url: "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot=1", 
   statusCode: {
     404: function() {
       alert( "No existeix cap partida en el slot indicat" );
@@ -510,7 +510,7 @@ function saveGame() {
   });
 
 //API >> Comunicació JSON 
-var guardarPartida = $.ajax({
+/*var guardarPartida = $.ajax({
   type: "POST",
   url: "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot="+slot, 
   contentType: 'application/json', 
