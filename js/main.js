@@ -10,7 +10,7 @@ const map1 = [
   ["W", "B", "W", "W", "W", "B", "B", "E", "B", "W"],
   ["W", "E", "B", "B", "B", "W", "W", "W", "W", "W"],
   ["W", "W", "W", "B", "B", "B", "B", "B", "B", "W"],
-  ["W", "O", "W", "B", "W", "W", "W", "W", "B", "W"],
+  ["W", "O", "W", "O", "W", "W", "W", "W", "B", "W"],
   ["W", "B", "W", "B", "B", "B", "B", "W", "B", "W"],
   ["W", "B", "B", "B", "W", "W", "B", "W", "E", "W"],
   ["EN", "B", "B", "B", "W", "B", "O", "W", "O", "W"],
@@ -35,6 +35,7 @@ var level = -2;
 var sumX = 0;
 var sumY = 0;
 var counterEnemies = 0;
+var counterObjects = 0;
 var turnFight = 0;
 var fighting = 0;
 var attackValue = 0;
@@ -42,19 +43,22 @@ var defenseValue = 0;
 let object = 0;
 let slot = 1;
 let running = 1;
+let firstClick = 1;
+var canFight = 0;
 
 /* Inicializar el juego */
 function iniciarJuego() {
 }
 
 function initObjetos() {
-  objetos["garrote"] = {ataque:4, defensa:2};
-  objetos["espada"] = {ataque:4, defensa:3};
-  objetos["llave"] = {ataque:1, defensa:0};
-  objetos["pistola"] = {ataque:5, defensa:1};
-  objetos["escudo"] = {ataque:1, defensa:5}
-  objetos["ametralladora"] = {ataque:5, defensa:2};
-  objetos["sarten"] = {ataque:3, defensa:4};
+  objetos["garrote"] = {ataque:4, defensa:2, status:0}; //Si status = 0, el objeto no se ha cogido
+  objetos["espada"] = {ataque:4, defensa:3, status:0};
+  objetos["llave"] = {ataque:1, defensa:0, status:0};
+  objetos["pistola"] = {ataque:5, defensa:1, status:0};
+  objetos["escudo"] = {ataque:1, defensa:5, status:0}
+  objetos["ametralladora"] = {ataque:5, defensa:2, status:0};
+  objetos["hacha"] = {ataque:3, defensa:4, status:0};
+  objetos["bomba"] = {ataque:5, defensa:3, status:0};
   //console.log(Object.keys(objetos)[2]);
 }
 
@@ -91,6 +95,7 @@ function initPlayer() {
   player.xp = 0;
   player.ataque = 0;
   player.defensa = 0;
+  player.manoderecha = "";
 }
 
 function startGame() {
@@ -283,52 +288,89 @@ function elementFound(element){
         enemigo.ataque = counterEnemies + 1;
         enemigo.defensa = counterEnemies;
       }
-      else{
+      else {
         enemigo.ataque = counterEnemies - 2;
         enemigo.defensa = counterEnemies - 1;
       }
       enemigo.xp = counterEnemies*10;
       enemigo.img = "media/images/" + element + ".png"; //TODO change image enemy
-      counterEnemies++;
       imagePlayer.src = enemigo.img;
-      getObjectsFight();
-      attackValue = player.ataque;
-      defenseValue = enemigo.defensa;
-      enemigo.vida = 8;
-      ajaxASYNC.request("http://puigpedros.salleurl.edu/pwi/pac4/ataque.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&ataque="+ attackValue + "&defensa="+ defenseValue);
-      let fightData = document.getElementById("fight");
-      fightData.style.display = "block";
-      setTimeout(function(){ fightEnemy(); }, 1000);      //TODO: añadir objetos
+      if (!canFight) {
+        alert("Please select two objects for the fight");
+      }
+      else {
+        counterEnemies++;
+        getObjectsFight();
+        attackValue = player.ataque;
+        defenseValue = enemigo.defensa;
+        enemigo.vida = 8;
+        ajaxASYNC.request("http://puigpedros.salleurl.edu/pwi/pac4/ataque.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&ataque="+ attackValue + "&defensa="+ defenseValue);
+        let fightData = document.getElementById("fight");
+        fightData.style.display = "block";
+        setTimeout(function(){ fightEnemy(); }, 2000); 
+        canFight = 0;     
+      }
+  }
+  else if(element == "object") {
+    fighting = 1;
+    imagePlayer.src = "media/images/object.png"; 
+    if(counterObjects < 8) {
+      setTimeout(function() { imagePlayer.src = "media/images/object" + Object.keys(objetos)[counterObjects - 1] + ".png";}, 1500);
+      var bag = document.getElementById("gridBag");
+      var imgObject = document.createElement('img');
+      imgObject.id = Object.keys(objetos)[counterObjects];
+      imgObject.setAttribute("object",  Object.keys(objetos)[counterObjects]);
+      Listener.add(imgObject, "click", Listener.eventTap, true);
+      bag.appendChild(imgObject);
+      setTimeout(function() {
+        imgObject.src = "media/images/" + Object.keys(objetos)[counterObjects - 1] + ".png";
+        fighting = 0;}, 2000);
+      counterObjects++;
+      for(var i = -1; i < 2; i++) {
+        for(var j = -1; j < 2; j++){
+          if (mapa[player.estadoPartida.y + i][player.estadoPartida.x + j] == "O") {
+            mapa[player.estadoPartida.y + i][player.estadoPartida.x + j] = "B";
+          }
+        } 
+      }
+    }
+    else {
+      counterObjects = 0;
+    }
   }
   else {
     imagePlayer.src = "media/images/" + element + ".png";
   }
 }
 
-function showpopup() {
-  $("#popup_box").fadeToggle();
-  $("#popup_box").css({"visibility":"visible","display":"block"});
-  document.body.style.backgroundColor = "rgba(22, 22, 22, 0.637)";
-}
+const Listener = {
+  add: function add(object, event, callback, capture) {
+    object.addEventListener(event, callback, capture);
+  },
 
-function hidepopup() {
-  $("#popup_box").fadeToggle();
-  $("#popup_box").css({"visibility":"hidden","display":"none"});
-  document.body.style.backgroundColor = "white";
-}
+  eventTap: function(event) {
+      event.preventDefault();
 
+      clickObject(event.target.getAttribute("object"));
+  }
+};
 
-function getValueForm() {
-  var name = document.getElementById("nameText");
-  if (name.value != "") {
-    var idName = document.getElementById("name");
-    idName.innerHTML = "Name: " + name.value;
-    player.nombre = name.value;
-    refreshData();
-    hidepopup();
-  } 
+function clickObject(object) {  
+  if(firstClick == 1) {
+    player.manoderecha = object;
+    document.getElementById("rightHand").innerHTML = "Right hand: " + player.manoderecha;
+    firstClick = 0;
+    canFight = 0;
+  }
+  else if (!firstClick){
+    player.manoizquierda = object;
+    document.getElementById("leftHand").innerHTML = "Left hand: " + player.manoizquierda;
+    canFight = 1;
+    firstClick = 2;
+  }
   else {
-    alert("Insert a name please");
+    canFight = 1;
+    alert("You already have an object for each hand");
   }
 }
 
@@ -339,6 +381,9 @@ function refreshData() {
   document.getElementById("defense").innerHTML = "Defense: " + player.defensa;
   document.getElementById("xp").innerHTML = "Experiencia: " + player.xp;
   document.getElementById("vidasEnemigo").innerHTML = "Enemy lives: " + enemigo.vida;
+  document.getElementById("rightHand").innerHTML = "Right hand: " + player.manoderecha;
+  document.getElementById("leftHand").innerHTML = "Left hand: " + player.manoizquierda;
+
   if (!turnFight) {
     document.getElementById("turn").innerHTML = "Turn: Player";
   }
@@ -360,58 +405,64 @@ function reqListener () {
 }
  
 function getObjectsFight() {
-  //TODO implement
-  player.manoderecha = "espada";
-  player.manoizquierda = "llave";
-  player.ataque = player.ataque + objetos[player.manoderecha].ataque + objetos[player.manoizquierda].ataque;
-  player.defensa = player.defensa + objetos[player.manoderecha].defensa + objetos[player.manoizquierda].defensa;
-  refreshData();
+
+    player.ataque = player.ataque + objetos[player.manoderecha].ataque + objetos[player.manoizquierda].ataque;
+    player.defensa = player.defensa + objetos[player.manoderecha].defensa + objetos[player.manoizquierda].defensa;
+    refreshData();
 }
 
-function fightEnemy() {  
-  refreshData();
-  fighting = 1;  
+function fightEnemy() {
+  fighting = 1;
+  if (firstClick == 2) {
+    refreshData();  
 
-  if (turnFight == 0) { //player's turn    
-    turnFight++;
-    attackValue = enemigo.ataque;
-    defenseValue = player.defensa;
-    if (object > 0) {
-      enemigo.vida = enemigo.vida - object;
+    if (turnFight == 0) { //player's turn    
+      turnFight++;
+      attackValue = enemigo.ataque;
+      defenseValue = player.defensa;
+      if (object > 0) {
+        enemigo.vida = enemigo.vida - object;
+      }
+      else if (object < 0){
+        player.vida = player.vida + object; //Se suma porque object negativo
+      }
     }
-    else if (object < 0){
-      player.vida = player.vida + object; //Se suma porque object negativo
+    else {
+      turnFight = 0;
+      attackValue = player.ataque;
+      defenseValue = enemigo.defensa;
+      
+      if (object > 0) {
+        player.vida = player.vida - object;
+      }
+      else if (object < 0){
+        enemigo.vida = enemigo.vida + object; //Se suma porque object negativo
+      }
     }
-  }
-  else {
-    turnFight = 0;
-    attackValue = player.ataque;
-    defenseValue = enemigo.defensa;
-    
-    if (object > 0) {
-      player.vida = player.vida - object;
-    }
-    else if (object < 0){
-      enemigo.vida = enemigo.vida + object; //Se suma porque object negativo
-    }
-  }
 
-  if (enemigo.vida <= 0 || player.vida <= 0){
-    if (enemigo.vida < 0) {
-      enemigo.vida = 0;
+    if (enemigo.vida <= 0 || player.vida <= 0){
+      if (enemigo.vida < 0) {
+        enemigo.vida = 0;
+      }
+      else if(player.vida < 0) {
+        player.vida = 0;
+      }
+      setTimeout(function(){ endFight();}, 2000);
     }
-    else if(player.vida < 0) {
-      player.vida = 0;
+    else {
+      ajaxASYNC.request("http://puigpedros.salleurl.edu/pwi/pac4/ataque.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&ataque="+ attackValue + "&defensa="+ defenseValue);
+      setTimeout(function(){ fightEnemy(); }, 2000);
     }
-    setTimeout(function(){ endFight();}, 1000);
-  }
+  }  
   else {
-    ajaxASYNC.request("http://puigpedros.salleurl.edu/pwi/pac4/ataque.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&ataque="+ attackValue + "&defensa="+ defenseValue);
-    setTimeout(function(){ fightEnemy(); }, 1000);
+    alert("Please select two objects first.");
   }
 }
 
 function endFight(){
+  firstClick = 1;
+  player.manoderecha = "";
+  player.manoizquierda = ""
   let fightData = document.getElementById("fight");
   fightData.style.display = "none";
   fighting = 0;
@@ -427,6 +478,7 @@ function endFight(){
         }
       } 
     }
+    enemigo.vida = 8;
     refreshData();
   }
   else if(player.vida == 0) {
@@ -436,17 +488,15 @@ function endFight(){
 }
 
 function saveGame() {
-  console.log("press");
-  
   partida["player"] = player;
   partida["mapa"] = mapa;
   partida["objetos"] = objetos;
   partida["counterEnemies"] = counterEnemies;
   partida["level"] = level;
   
-  $.post('http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot=1', JSON.stringify({hola: "hola"}), function(){ 
+ /* $.post('http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot=1', JSON.stringify({hola: "hola"}), function(){ 
       alert("success");
-  });
+  });*/
 }
 
 /*var esborrarPartida = $.ajax({
@@ -552,3 +602,30 @@ var atacJugador = $.ajax({
 // Variables que necessitem que siguin globals : slot(nueva,1,2), partida(objecte que conte tot el que volem guardar de la partida 
 // entenc que player,objetos i el mapa ja que si a la partida que ha guardat havia recollit tot ho haurem de canviar del mapa i 
 // sera aixo el que enviem), player  i enemigo entenc que ja son globals no?? 
+
+function showpopup() {
+  $("#popup_box").fadeToggle();
+  $("#popup_box").css({"visibility":"visible","display":"block"});
+  document.body.style.backgroundColor = "rgba(22, 22, 22, 0.637)";
+}
+
+function hidepopup() {
+  $("#popup_box").fadeToggle();
+  $("#popup_box").css({"visibility":"hidden","display":"none"});
+  document.body.style.backgroundColor = "white";
+}
+
+
+function getValueForm() {
+  var name = document.getElementById("nameText");
+  if (name.value != "") {
+    var idName = document.getElementById("name");
+    idName.innerHTML = "Name: " + name.value;
+    player.nombre = name.value;
+    refreshData();
+    hidepopup();
+  } 
+  else {
+    alert("Insert a name please");
+  }
+}
