@@ -41,13 +41,45 @@ var fighting = 0;
 var attackValue = 0;
 var defenseValue = 0;
 let object = 0;
-let slot = 1;
+let slot = 0;
 let running = 1;
 let firstClick = 1;
 var canFight = 0;
 
+window.onload = function() {
+ 
+  newGame();
+}
+
+function newGame() {
+  /*slot = "nueva";
+  partida = null;
+  /*$.get( "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot=" + slot, function(responseText) {
+    partida = jQuery.extend({}, responseText);
+    
+  });
+  console.log(partida);
+
+  var response = $.ajax({type: "GET", url: "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot=nueva", async: false}).responseText;    
+  partida = response;
+  mapa = partida["mapa"];
+  console.log(partida["mapa"]);
+  
+  player = partida["player"];
+  enemigo = partida["enemigo"];
+  objetos = partida["objetos"];
+  counterEnemies = partida["counterEnemies"];
+  counterObjects = partida["counterObjects"];
+  turnFight = partida["turnFight"];
+  fighting = partida["fighting"];
+  running = partida["running"];
+  firstClick = partida["firstClick"];
+  canFight = partida["canFight"];*/
+}
+
 /* Inicializar el juego */
 function iniciarJuego() {
+  
 }
 
 function initObjetos() {
@@ -96,6 +128,7 @@ function initPlayer() {
   player.ataque = 0;
   player.defensa = 0;
   player.manoderecha = "";
+  player.manoizquierda = "";
 }
 
 function startGame() {
@@ -325,6 +358,7 @@ function elementFound(element){
       setTimeout(function() {
         imgObject.src = "media/images/" + Object.keys(objetos)[counterObjects - 1] + ".png";
         fighting = 0;}, 2000);
+      player.mochila[counterObjects] = Object.keys(objetos)[counterObjects];
       counterObjects++;
       for(var i = -1; i < 2; i++) {
         for(var j = -1; j < 2; j++){
@@ -488,20 +522,39 @@ function endFight(){
 }
 
 function saveGame() {
+  
   partida["player"] = player;
   partida["mapa"] = mapa;
   partida["objetos"] = objetos;
   partida["counterEnemies"] = counterEnemies;
-  partida["level"] = level;
-
+  partida["counterObjects"] = counterObjects;
+  partida["fighting"] = fighting;
+  partida["running"] = running;
+  partida["turnFight"] = turnFight;
+  partida["firstClick"] = firstClick;
+  partida["canFight"] = canFight;
+//TODO implement que jugador esculli el slot
   $.post('http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot=1', "json=" + JSON.stringify(partida), function(){ 
       alert("success");
   });
 }
 
-var esborrarPartida = $.ajax({
+/*function descarregarPartida() {
+  return $.ajax({
+  type: "GET",
+  url: "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot=nueva", 
+  contentType: 'application/json', 
+  statusCode: {
+    404: function() {
+      alert( "No existeix cap partida en el slot indicat" );
+    },
+  },
+  });
+}
+
+/*var esborrarPartida = $.ajax({
   type: "DELETE",
-  url: "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot=1", 
+  url: "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot=nueva", 
   statusCode: {
     404: function() {
       alert( "No existeix cap partida en el slot indicat" );
@@ -509,30 +562,24 @@ var esborrarPartida = $.ajax({
   },
   });
 
+ /* 
+
+  /*var guardarPartida = $.ajax({
+    type: "POST",
+    url: "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot="+slot, 
+    contentType: 'application/json', 
+    data: JSON.stringify(partida),
+    statusCode: {
+      404: function() {
+        alert( "El slot no está libre, borra un slot y podras guardarla" );
+      }
+    },
+  });
+  
 //API >> Comunicació JSON 
-/*var guardarPartida = $.ajax({
-  type: "POST",
-  url: "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot="+slot, 
-  contentType: 'application/json', 
-  data: JSON.stringify(partida),
-  statusCode: {
-    404: function() {
-      alert( "El slot no está libre, borra un slot y podras guardarla" );
-    }
-  },
-});
 
 /*
-var descarregarPartida = $.ajax({
-  type: "GET",
-  url: "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot="+slot, 
-  contentType: 'application/json', 
-  statusCode: {
-    404: function() {
-      alert( "No existeix cap partida en el slot indicat" );
-    },
-  },
-  });
+
 
 var descarregarLlistaSlots = $.ajax({
   type: "GET",
