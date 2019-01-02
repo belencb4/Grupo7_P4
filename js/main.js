@@ -45,27 +45,47 @@ let slot = 0;
 let running = 1;
 let firstClick = 1;
 var canFight = 0;
+var optionPopup = 0;
+var slots = []
+var saveNow = 0;
 
 window.onload = function() {
- 
-  newGame();
+
+  /*$.ajax({
+  type: "DELETE",
+  url: "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot=1", 
+  statusCode: {
+    404: function() {
+      alert( "No existeix cap partida en el slot indicat" );
+    },
+  },
+  });*/
+
+  /*partida["player"] = player;
+  partida["enemigo"] = enemigo;
+  partida["mapa"] = map1;
+  partida["objetos"] = objetos;
+  partida["counterEnemies"] = counterEnemies;
+  partida["counterObjects"] = counterObjects;
+  partida["fighting"] = fighting;
+  partida["running"] = running;
+  partida["turnFight"] = turnFight;
+  partida["firstClick"] = firstClick;
+  partida["canFight"] = canFight;
+  console.log(JSON.stringify(partida));*/
+  slot = "nueva"
+  loadGame();
 }
 
-function newGame() {
-  /*slot = "nueva";
-  partida = null;
-  /*$.get( "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot=" + slot, function(responseText) {
-    partida = jQuery.extend({}, responseText);
+function loadGame() {
+
+  $.get( "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot=" + slot, function(responseText) {
+    partida = JSON.parse(responseText);  
+    console.log(JSON.parse(responseText)); 
     
   });
-  console.log(partida);
-
-  var response = $.ajax({type: "GET", url: "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot=nueva", async: false}).responseText;    
-  partida = response;
-  mapa = partida["mapa"];
-  console.log(partida["mapa"]);
   
-  player = partida["player"];
+  setTimeout(function() {player = partida["player"];
   enemigo = partida["enemigo"];
   objetos = partida["objetos"];
   counterEnemies = partida["counterEnemies"];
@@ -74,7 +94,9 @@ function newGame() {
   fighting = partida["fighting"];
   running = partida["running"];
   firstClick = partida["firstClick"];
-  canFight = partida["canFight"];*/
+  canFight = partida["canFight"];}, 200);
+  
+  
 }
 
 /* Inicializar el juego */
@@ -82,7 +104,7 @@ function iniciarJuego() {
   
 }
 
-function initObjetos() {
+/*function initObjetos() {
   objetos["garrote"] = {ataque:4, defensa:2, status:0}; //Si status = 0, el objeto no se ha cogido
   objetos["espada"] = {ataque:4, defensa:3, status:0};
   objetos["llave"] = {ataque:1, defensa:0, status:0};
@@ -92,7 +114,7 @@ function initObjetos() {
   objetos["hacha"] = {ataque:3, defensa:4, status:0};
   objetos["bomba"] = {ataque:5, defensa:3, status:0};
   //console.log(Object.keys(objetos)[2]);
-}
+}*/
 
 /* Init del mapa y del jugador*/
 function initPlayerPosition(currentMap) {
@@ -121,7 +143,7 @@ function initPlayerPosition(currentMap) {
   mapa = currentMap;
 }
 
-function initPlayer() {
+/* function initPlayer() {
   player.nivel = level;
   player.vida = 10;
   player.xp = 0;
@@ -129,14 +151,13 @@ function initPlayer() {
   player.defensa = 0;
   player.manoderecha = "";
   player.manoizquierda = "";
-}
+}*/
 
-function startGame() {
+function startGame() {  
   if (running) {
     running = 0;
-    initPlayer();
     enemigo.vida = 8;
-    initObjetos();
+    optionPopup = "start";
     showpopup();
     if(level == -2) initPlayerPosition(map1);
     else if(level == -1) initPlayerPosition(map2);
@@ -522,21 +543,13 @@ function endFight(){
 }
 
 function saveGame() {
+
+ document.getElementById("info_text").innerHTML = "Select slot. Insert 1 or 2: <input id='nameText' type='text' name='firstname'><br><input type='button' id='submit_button' value='Submit' onclick='getValueForm()'>";
+ optionPopup = "save";
+ showpopup(); 
+  console.log(slot);
   
-  partida["player"] = player;
-  partida["mapa"] = mapa;
-  partida["objetos"] = objetos;
-  partida["counterEnemies"] = counterEnemies;
-  partida["counterObjects"] = counterObjects;
-  partida["fighting"] = fighting;
-  partida["running"] = running;
-  partida["turnFight"] = turnFight;
-  partida["firstClick"] = firstClick;
-  partida["canFight"] = canFight;
-//TODO implement que jugador esculli el slot
-  $.post('http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot=1', "json=" + JSON.stringify(partida), function(){ 
-      alert("success");
-  });
+
 }
 
 /*function descarregarPartida() {
@@ -663,16 +676,83 @@ function hidepopup() {
 }
 
 
-function getValueForm() {
-  var name = document.getElementById("nameText");
-  if (name.value != "") {
-    var idName = document.getElementById("name");
-    idName.innerHTML = "Name: " + name.value;
-    player.nombre = name.value;
-    refreshData();
-    hidepopup();
-  } 
-  else {
-    alert("Insert a name please");
+function getValueForm() {  
+  if (optionPopup == "start") {
+    var name = document.getElementById("nameText");
+    if (name.value != "") {
+      var idName = document.getElementById("name");
+      idName.innerHTML = "Name: " + name.value;
+      player.nombre = name.value;
+      refreshData();
+      hidepopup();
+    } 
+    else {
+      alert("Insert a name please");
+    }
+  }
+  else if (optionPopup == "save") {
+    var optionSlot = document.getElementById("nameText");
+    if (optionSlot.value != '1' && optionSlot.value != '2') {
+      alert("Insert number 1 or 2 please");
+    }
+    else {
+        slot = 0;
+        
+      $.get( "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145", function(responseText) {
+        slots = JSON.parse(responseText);  
+        console.log(JSON.parse(responseText)); 
+        
+      });
+        setTimeout(function(){
+          console.log(slots.length);
+          
+          if (slots.length == 3) {
+            slot = 3;
+            alert("All slots are full, delete one before saving the game.");
+            hidepopup();
+          }
+          else {
+            for(var i = 0; i < slots.length; i++){
+              if (optionSlot.value == '1') {
+                if (slots[i] == "1") {
+                  slot = 3;
+                  alert("This slot is already full, select another one or delete the game of the slot.");
+                }
+              }
+              else if(optionSlot.value == "2"){
+                if (slots[i] == "2") {
+                  slot = 3;
+                  alert("This slot is already full, select another one or delete the game of the slot.");
+                }
+              }
+            }
+          }
+          if (slot != 3) {
+            if (optionSlot.value == '1') {
+              slot = 1;
+              hidepopup();
+            }
+            else if (optionSlot.value == '2') {
+              slot = 2;
+              hidepopup();
+            }
+          }
+          partida["player"] = player;
+          partida["mapa"] = mapa;
+          partida["objetos"] = objetos;
+          partida["counterEnemies"] = counterEnemies;
+          partida["counterObjects"] = counterObjects;
+          partida["fighting"] = fighting;
+          partida["running"] = running;
+          partida["turnFight"] = turnFight;
+          partida["firstClick"] = firstClick;
+          partida["canFight"] = canFight;
+
+          $.post('http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot=' + slot, "json=" + JSON.stringify(partida), function(){ 
+            });
+
+        },200);  
   }
 }
+}
+  
