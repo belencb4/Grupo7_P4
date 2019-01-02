@@ -80,9 +80,7 @@ window.onload = function() {
 function loadGame() {
 
   $.get( "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot=" + slot, function(responseText) {
-    partida = JSON.parse(responseText);  
-    console.log(JSON.parse(responseText)); 
-    
+    partida = JSON.parse(responseText);      
   });
   
   setTimeout(function() {player = partida["player"];
@@ -94,7 +92,7 @@ function loadGame() {
   fighting = partida["fighting"];
   running = partida["running"];
   firstClick = partida["firstClick"];
-  canFight = partida["canFight"];}, 200);
+  canFight = partida["canFight"];}, 100);
   
   
 }
@@ -547,9 +545,19 @@ function saveGame() {
  document.getElementById("info_text").innerHTML = "Select slot. Insert 1 or 2: <input id='nameText' type='text' name='firstname'><br><input type='button' id='submit_button' value='Submit' onclick='getValueForm()'>";
  optionPopup = "save";
  showpopup(); 
-  console.log(slot);
   
+}
 
+function deleteGame() {
+  document.getElementById("info_text").innerHTML = "Select slot. Insert 1 or 2: <input id='nameText' type='text' name='firstname'><br><input type='button' id='submit_button' value='Submit' onclick='getValueForm()'>";
+  optionPopup = "delete";
+  showpopup(); 
+}
+
+function recoverGame() {
+  document.getElementById("info_text").innerHTML = "Select slot. Insert 1 or 2: <input id='nameText' type='text' name='firstname'><br><input type='button' id='submit_button' value='Submit' onclick='getValueForm()'>";
+  optionPopup = "recover";
+  showpopup(); 
 }
 
 /*function descarregarPartida() {
@@ -676,8 +684,9 @@ function hidepopup() {
 }
 
 
-function getValueForm() {  
-  if (optionPopup == "start") {
+function getValueForm() { 
+  switch(optionPopup){ 
+  case "start":
     var name = document.getElementById("nameText");
     if (name.value != "") {
       var idName = document.getElementById("name");
@@ -689,55 +698,54 @@ function getValueForm() {
     else {
       alert("Insert a name please");
     }
-  }
-  else if (optionPopup == "save") {
+    break;
+  case "save":
     var optionSlot = document.getElementById("nameText");
     if (optionSlot.value != '1' && optionSlot.value != '2') {
       alert("Insert number 1 or 2 please");
     }
     else {
-        slot = 0;
+      slot = 0;
         
       $.get( "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145", function(responseText) {
-        slots = JSON.parse(responseText);  
-        console.log(JSON.parse(responseText)); 
-        
+        slots = JSON.parse(responseText);          
       });
-        setTimeout(function(){
-          console.log(slots.length);
-          
-          if (slots.length == 3) {
-            slot = 3;
-            alert("All slots are full, delete one before saving the game.");
+      setTimeout(function(){      
+        if (slots.length == 3) {
+          slot = 3;
+          alert("All slots are full, delete one before saving the game.");
+          hidepopup();
+        }
+        else {
+          for(var i = 0; i < slots.length; i++){
+            if (optionSlot.value == '1') {
+              if (slots[i] == "1") {
+                slot = 3;
+                alert("This slot is already full, select another one or delete the game of the slot.");
+              }
+            }
+            else if(optionSlot.value == "2"){
+              if (slots[i] == "2") {
+                slot = 3;
+                alert("This slot is already full, select another one or delete the game of the slot.");
+              }
+            }
+          }
+        }
+        if (slot != 3) {
+          if (optionSlot.value == '1') {
+            slot = 1;
             hidepopup();
           }
-          else {
-            for(var i = 0; i < slots.length; i++){
-              if (optionSlot.value == '1') {
-                if (slots[i] == "1") {
-                  slot = 3;
-                  alert("This slot is already full, select another one or delete the game of the slot.");
-                }
-              }
-              else if(optionSlot.value == "2"){
-                if (slots[i] == "2") {
-                  slot = 3;
-                  alert("This slot is already full, select another one or delete the game of the slot.");
-                }
-              }
-            }
+          else if (optionSlot.value == '2') {
+            slot = 2;
+            hidepopup();
           }
-          if (slot != 3) {
-            if (optionSlot.value == '1') {
-              slot = 1;
-              hidepopup();
-            }
-            else if (optionSlot.value == '2') {
-              slot = 2;
-              hidepopup();
-            }
-          }
+        }
+        if(slot != 3) {
+          
           partida["player"] = player;
+          partida["enemigo"] = enemigo;
           partida["mapa"] = mapa;
           partida["objetos"] = objetos;
           partida["counterEnemies"] = counterEnemies;
@@ -749,10 +757,123 @@ function getValueForm() {
           partida["canFight"] = canFight;
 
           $.post('http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot=' + slot, "json=" + JSON.stringify(partida), function(){ 
-            });
+           alert("Game saved at slot " + slot); });
+        }
+      
+      },1000); 
+    } 
+      break;
+    case "delete":
+      slot = 0;
+      var optionSlot = document.getElementById("nameText");
+      if (optionSlot.value != '1' && optionSlot.value != '2') {
+        alert("Insert number 1 or 2 please");
+      }
+      else {
+        $.get( "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145", function(responseText) {
+          slots = JSON.parse(responseText);          
+        });
+        setTimeout(function() {
+          if (slots.length == 0) {
+            alert("Slots are empty, you can save a game.");
+            hidepopup();
+          }
+          else {
+            for(var i = 0; i < slots.length; i++){
+              if (optionSlot.value == '1') {
+                if (slots[i] == "1") {
+                    slot = 1;
+                    deleteGameAjax();                  
+                    alert("Slot 1 deleted");
+                    hidepopup();
+                }    
+              }
+              else if (optionSlot.value == "2"){
+                  if (slots[i] == "2") {
+                      slot = 2;
+                      deleteGameAjax();
+                      alert("Slot 2 deleted");
+                      hidepopup();
+                  }
+              }
+            }
+          }
+          if (slot != 1 && slot != 2) {
+            alert("Empty slot");
+            hidepopup();
+          }
+        }, 300);
+      } 
+    break;
 
-        },200);  
-  }
+    case "recover":
+      slot = 0;
+      var optionSlot = document.getElementById("nameText");
+      if (optionSlot.value != '1' && optionSlot.value != '2') {
+        alert("Insert number 1 or 2 please");
+      }
+      else {
+        $.get( "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145", function(responseText) {
+          slots = JSON.parse(responseText);          
+        });
+        setTimeout(function() {
+          if (slots.length == 0) {
+            alert("Slots are empty, you can't recover a game.");
+            hidepopup();
+          }
+          else {
+            for(var i = 0; i < slots.length; i++){
+              if (optionSlot.value == '1') {
+                if (slots[i] == "1") {
+                  slot = 1;
+                }
+              }
+              else if (optionSlot.value == '2'){
+                if (slots[i] == "2") {
+                  slot = 2;
+                }
+              } 
+            }
+
+            if (slot == 1 || slot == 2) {
+              $.get( "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot=" + slot, function(responseText) {
+                  partida = JSON.parse(responseText);
+                  console.log(partida);
+                  
+                  alert("Game at slot " + slot + " recovered successfully!");
+                  hidepopup();
+              });
+              setTimeout(function() {
+                console.log(partida);
+              player = partida["player"];
+              enemigo = partida["enemigo"];
+              objetos = partida["objetos"];
+              counterEnemies = partida["counterEnemies"];
+              counterObjects = partida["counterObjects"];
+              turnFight = partida["turnFight"];
+              fighting = partida["fighting"];
+              running = partida["running"];
+              firstClick = partida["firstClick"];
+              canFight = partida["canFight"];
+              refreshData();}, 1000);
+            }
+            
+            
+          }
+        },300);
+      }
+    break;
+    }
 }
+
+function deleteGameAjax() {
+  $.ajax({
+    type: "DELETE",
+    url: "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot="+slot, 
+    statusCode: {
+      404: function() {
+        alert("No existeix cap partida en el slot indicat" );
+      },
+    },
+    });
 }
-  
