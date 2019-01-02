@@ -53,7 +53,7 @@ window.onload = function() {
 
   /*$.ajax({
   type: "DELETE",
-  url: "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot=1", 
+  url: "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot=nueva", 
   statusCode: {
     404: function() {
       alert( "No existeix cap partida en el slot indicat" );
@@ -173,6 +173,9 @@ function mapaToImg(x, y) {
 
 /* Sets de position and orientation of the player at every move */
 function checkKey(e) {
+  console.log("posx " + player.estadoPartida.x);
+  console.log("posy " + player.estadoPartida.y);
+  
   e = e || window.event;
   if(!fighting) {
   if(event.keyCode == rightArrow) {
@@ -755,6 +758,7 @@ function getValueForm() {
           partida["turnFight"] = turnFight;
           partida["firstClick"] = firstClick;
           partida["canFight"] = canFight;
+          partida["image"] =  document.getElementById("imageScreen").src;
 
           $.post('http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot=' + slot, "json=" + JSON.stringify(partida), function(){ 
            alert("Game saved at slot " + slot); });
@@ -844,18 +848,18 @@ function getValueForm() {
                   hidepopup();
               });
               setTimeout(function() {
-                console.log(partida);
-              player = partida["player"];
-              enemigo = partida["enemigo"];
-              objetos = partida["objetos"];
-              counterEnemies = partida["counterEnemies"];
-              counterObjects = partida["counterObjects"];
-              turnFight = partida["turnFight"];
-              fighting = partida["fighting"];
-              running = partida["running"];
-              firstClick = partida["firstClick"];
-              canFight = partida["canFight"];
-              refreshData();}, 1000);
+                player = partida["player"];
+                enemigo = partida["enemigo"];
+                objetos = partida["objetos"];
+                counterEnemies = partida["counterEnemies"];
+                counterObjects = partida["counterObjects"];
+                turnFight = partida["turnFight"];
+                fighting = partida["fighting"];
+                running = partida["running"];
+                firstClick = partida["firstClick"];
+                canFight = partida["canFight"];
+                document.getElementById("imageScreen").src = partida["image"];
+                refreshData();}, 1000);
             }
             
             
