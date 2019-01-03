@@ -326,6 +326,7 @@ function changeImage(sumX, sumY) {
   } 
 }
 
+
 /* Function which sets de images */
 function elementFound(element){
   var imagePlayer = document.getElementById("imageScreen");  
