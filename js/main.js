@@ -78,22 +78,19 @@ window.onload = function() {
 }
 
 function loadGame() {
-
+  running = 1;
   $.get( "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot=" + slot, function(responseText) {
-    partida = JSON.parse(responseText);      
+    partida = JSON.parse(responseText);   
+    enemigo = partida["enemigo"];
+    running = partida["running"];
+    objetos = partida["objetos"];
+    counterEnemies = partida["counterEnemies"];
+    counterObjects = partida["counterObjects"];
+    turnFight = partida["turnFight"];
+    fighting = partida["fighting"];
+    firstClick = partida["firstClick"];
+    canFight = partida["canFight"];   
   });
-  
-  setTimeout(function() {player = partida["player"];
-  enemigo = partida["enemigo"];
-  objetos = partida["objetos"];
-  counterEnemies = partida["counterEnemies"];
-  counterObjects = partida["counterObjects"];
-  turnFight = partida["turnFight"];
-  fighting = partida["fighting"];
-  running = partida["running"];
-  firstClick = partida["firstClick"];
-  canFight = partida["canFight"];}, 100);
-  
   
 }
 
@@ -105,14 +102,21 @@ function iniciarJuego() {
 /*function initObjetos() {
   objetos["garrote"] = {ataque:4, defensa:2, status:0}; //Si status = 0, el objeto no se ha cogido
   objetos["espada"] = {ataque:4, defensa:3, status:0};
-  objetos["llave"] = {ataque:1, defensa:0, status:0};
+  objetos["llave"] = {ataque:1, defensa:1, status:0};
   objetos["pistola"] = {ataque:5, defensa:1, status:0};
   objetos["escudo"] = {ataque:1, defensa:5, status:0}
   objetos["ametralladora"] = {ataque:5, defensa:2, status:0};
   objetos["hacha"] = {ataque:3, defensa:4, status:0};
   objetos["bomba"] = {ataque:5, defensa:3, status:0};
+  objetos["tronco"] = {ataque:2, defensa:0, status:1};
+  objetos["granada"] = {ataque:4, defensa:0, status:1};
+  objetos["lanza"] = {ataque:2, defensa:1, status:1};
+  objetos["puerta"] = {ataque:0, defensa:4, status:1};
+  objetos["escopeta"] = {ataque:4, defensa:0, status:1};
+  objetos["puñal"] = {ataque:3, defensa:2, status:1};
   //console.log(Object.keys(objetos)[2]);
 }*/
+
 
 /* Init del mapa y del jugador*/
 function initPlayerPosition(currentMap) {
@@ -173,9 +177,7 @@ function mapaToImg(x, y) {
 
 /* Sets de position and orientation of the player at every move */
 function checkKey(e) {
-  console.log("posx " + player.estadoPartida.x);
-  console.log("posy " + player.estadoPartida.y);
-  
+  e.preventDefault();  
   e = e || window.event;
   if(!fighting) {
   if(event.keyCode == rightArrow) {
@@ -340,14 +342,24 @@ function elementFound(element){
       imagePlayer.src = "media/images/" + element + walk + ".png";
   } 
   else if (element == "enemy") {
+    turnFight = 0;
       if(counterEnemies < 4) {
         enemigo.ataque = counterEnemies + 1;
         enemigo.defensa = counterEnemies;
+        if (counterEnemies == 0) enemigo.objetos = Object.keys(objetos)[8]; 
+        if (counterEnemies == 1) enemigo.objetos = Object.keys(objetos)[9]; 
+        if (counterEnemies == 2) enemigo.objetos = Object.keys(objetos)[10];  
+        if (counterEnemies == 3) enemigo.objetos = Object.keys(objetos)[11];  
       }
       else {
+        if (counterEnemies == 4) enemigo.objetos = Object.keys(objetos)[12]; 
+        if (counterEnemies == 5) enemigo.objetos = Object.keys(objetos)[13];  
+        if (counterEnemies > 5) enemigo.objetos = Object.keys(objetos)[8]; 
         enemigo.ataque = counterEnemies - 2;
         enemigo.defensa = counterEnemies - 1;
       }
+      console.log(enemigo);
+      
       enemigo.xp = counterEnemies*10;
       enemigo.img = "media/images/" + element + ".png"; //TODO change image enemy
       imagePlayer.src = enemigo.img;
@@ -358,7 +370,7 @@ function elementFound(element){
         counterEnemies++;
         getObjectsFight();
         attackValue = player.ataque;
-        defenseValue = enemigo.defensa;
+        defenseValue = enemigo.defensa + objetos[enemigo.objetos].defensa;
         enemigo.vida = 8;
         ajaxASYNC.request("http://puigpedros.salleurl.edu/pwi/pac4/ataque.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&ataque="+ attackValue + "&defensa="+ defenseValue);
         let fightData = document.getElementById("fight");
@@ -370,19 +382,10 @@ function elementFound(element){
   else if(element == "object") {
     fighting = 1;
     imagePlayer.src = "media/images/object.png"; 
-    if(counterObjects < 8) {
-      setTimeout(function() { imagePlayer.src = "media/images/object" + Object.keys(objetos)[counterObjects - 1] + ".png";}, 1500);
-      var bag = document.getElementById("gridBag");
-      var imgObject = document.createElement('img');
-      imgObject.id = Object.keys(objetos)[counterObjects];
-      imgObject.setAttribute("object",  Object.keys(objetos)[counterObjects]);
-      Listener.add(imgObject, "click", Listener.eventTap, true);
-      bag.appendChild(imgObject);
-      setTimeout(function() {
-        imgObject.src = "media/images/" + Object.keys(objetos)[counterObjects - 1] + ".png";
-        fighting = 0;}, 2000);
-      player.mochila[counterObjects] = Object.keys(objetos)[counterObjects];
+    if(counterObjects < 9) {
       counterObjects++;
+      setTimeout(function() { imagePlayer.src = "media/images/object" + Object.keys(objetos)[counterObjects - 1] + ".png";}, 1500);
+      addObjectToBag(Object.keys(objetos)[counterObjects - 1]);
       for(var i = -1; i < 2; i++) {
         for(var j = -1; j < 2; j++){
           if (mapa[player.estadoPartida.y + i][player.estadoPartida.x + j] == "O") {
@@ -432,6 +435,7 @@ function clickObject(object) {
 }
 
 function refreshData() {
+  document.getElementById("name").innerHTML = "Name: " + player.nombre;
   document.getElementById("lives").innerHTML = "Lives: " + player.vida;
   document.getElementById("level").innerHTML = "Level: " + player.nivel;
   document.getElementById("attack").innerHTML = "Attack: " + player.ataque;
@@ -440,7 +444,7 @@ function refreshData() {
   document.getElementById("vidasEnemigo").innerHTML = "Enemy lives: " + enemigo.vida;
   document.getElementById("rightHand").innerHTML = "Right hand: " + player.manoderecha;
   document.getElementById("leftHand").innerHTML = "Left hand: " + player.manoizquierda;
-
+  
   if (!turnFight) {
     document.getElementById("turn").innerHTML = "Turn: Player";
   }
@@ -475,7 +479,7 @@ function fightEnemy() {
 
     if (turnFight == 0) { //player's turn    
       turnFight++;
-      attackValue = enemigo.ataque;
+      attackValue = enemigo.ataque + objetos[enemigo.objetos].ataque;
       defenseValue = player.defensa;
       if (object > 0) {
         enemigo.vida = enemigo.vida - object;
@@ -487,7 +491,7 @@ function fightEnemy() {
     else {
       turnFight = 0;
       attackValue = player.ataque;
-      defenseValue = enemigo.defensa;
+      defenseValue = enemigo.defensa + objetos[enemigo.objetos].defensa;
       
       if (object > 0) {
         player.vida = player.vida - object;
@@ -527,6 +531,8 @@ function endFight(){
   player.defensa = 0;
   if (enemigo.vida <= 0) {
     elementFound("walk");
+    counterObjects++;
+    addObjectToBag(enemigo.objetos);
     player.xp = enemigo.xp;
     for(var i = -1; i < 2; i++) {
       for(var j = -1; j < 2; j++){
@@ -539,9 +545,37 @@ function endFight(){
     refreshData();
   }
   else if(player.vida == 0) {
-    running = 1;
+    elementFound("walk");
+    refreshData();
+    alert("Game Over. Press start if you want to play again.");
+    slot = "nueva";
+    loadGame();
+    refreshData();
+    for (let i = 0; i < player.mochila.length; i++) {
+      addObjectToBag(player.mochila[i]);
+    }
     //TODO GameOver
   }  
+}
+
+function addObjectToBag(currentObject){
+  if (counterObjects < 8) {
+    var bag = document.getElementById("gridBag");
+    var imgObject = document.createElement('img');
+    imgObject.id = currentObject;
+    imgObject.setAttribute("object",  currentObject);
+    Listener.add(imgObject, "click", Listener.eventTap, true);
+    bag.appendChild(imgObject);
+    setTimeout(function() {
+      imgObject.src = "media/images/" + currentObject + ".png";
+      fighting = 0;}, 500);
+    player.mochila[counterObjects] = currentObject;
+    console.log(counterObjects);
+  }
+  else {
+    alert("You can have a maximum of 8 objects in your bag.");
+  }
+ 
 }
 
 function saveGame() {
@@ -587,8 +621,7 @@ function recoverGame() {
   },
   });
 
- /* 
-
+ /*
   /*var guardarPartida = $.ajax({
     type: "POST",
     url: "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot="+slot, 
@@ -603,10 +636,7 @@ function recoverGame() {
   
 //API >> Comunicació JSON 
 
-/*
-
-
-var descarregarLlistaSlots = $.ajax({
+/*var descarregarLlistaSlots = $.ajax({
   type: "GET",
   url: "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145", 
   contentType: 'application/json', 
@@ -688,7 +718,8 @@ function hidepopup() {
 }
 
 
-function getValueForm() { 
+function getValueForm() {
+   
   switch(optionPopup){ 
   case "start":
     var name = document.getElementById("nameText");
@@ -764,7 +795,6 @@ function getValueForm() {
           $.post('http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot=' + slot, "json=" + JSON.stringify(partida), function(){ 
            alert("Game saved at slot " + slot); });
         }
-      
       },1000); 
     } 
       break;
@@ -844,26 +874,26 @@ function getValueForm() {
               $.get( "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot=" + slot, function(responseText) {
                   partida = JSON.parse(responseText);
                   console.log(partida);
-                  
+                  player = partida["player"];
+                  enemigo = partida["enemigo"];
+                  objetos = partida["objetos"];
+                  counterEnemies = partida["counterEnemies"];
+                  counterObjects = partida["counterObjects"];
+                  turnFight = partida["turnFight"];
+                  fighting = partida["fighting"];
+                  running = partida["running"];
+                  firstClick = partida["firstClick"];
+                  canFight = partida["canFight"];
+                  document.getElementById("imageScreen").src = partida["image"];
+                  refreshData();
+                  document.getElementById("gridBag").innerHTML = "";
+                  for (let i = 0; i < player.mochila.length; i++) {
+                    addObjectToBag(player.mochila[i]);
+                  }
                   alert("Game at slot " + slot + " recovered successfully!");
                   hidepopup();
               });
-              setTimeout(function() {
-                player = partida["player"];
-                enemigo = partida["enemigo"];
-                objetos = partida["objetos"];
-                counterEnemies = partida["counterEnemies"];
-                counterObjects = partida["counterObjects"];
-                turnFight = partida["turnFight"];
-                fighting = partida["fighting"];
-                running = partida["running"];
-                firstClick = partida["firstClick"];
-                canFight = partida["canFight"];
-                document.getElementById("imageScreen").src = partida["image"];
-                refreshData();}, 1000);
             }
-            
-            
           }
         },300);
       }
