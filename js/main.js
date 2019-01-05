@@ -3,7 +3,7 @@ const leftArrow = 37;
 const upArrow = 38;
 const downArrow = 40;
 const spaceKey = 32;
-
+const enter = 13;
 const map1 = [
   ["W", "W", "W", "W", "W", "W", "W", "EX", "W", "W"],
   ["W", "B", "B", "B", "B", "B", "W", "B", "W", "W"],
@@ -177,9 +177,11 @@ function mapaToImg(x, y) {
 
 /* Sets de position and orientation of the player at every move */
 function checkKey(e) {
-  e.preventDefault();  
+  
+  //e.preventDefault();  
   e = e || window.event;
   if(!fighting) {
+   
   if(event.keyCode == rightArrow) {
       switch (player.estadoPartida.direccion) {
           case 3: //Oeste - Left
@@ -298,8 +300,13 @@ function checkKey(e) {
               player.estadoPartida.direccion = 0;
               break;
       }
+     
       changeImage(sumX, sumY);
-  }
+      
+  }else if (event.keyCode == enter) { 
+        e.preventDefault();  
+        console.log("bloquejo");
+      }
   }
 }
 

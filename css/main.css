@@ -1,9 +1,11 @@
+
 #grid {
   display: grid;
   grid-template-columns: 33% 33% 33%;
   grid-template-rows: 425px 100px;
   align-content: center;
 }
+
 
 #gridBag {
   display: grid;
@@ -64,9 +66,6 @@ h2, h1 {
   margin-top: 70px;
 }
 
-#minimapa {
-  width: 200px;
-}
 
 #minimap {
   width: 100%;
@@ -115,4 +114,150 @@ h2, h1 {
 
 #bagFont {
   font-size: 10px;
+}
+
+.minimapa {
+  margin-left: 1000px;
+  display: grid;
+  grid-template-columns: 30px 30px 30px 30px 30px 30px 30px 30px 30px 30px;
+  grid-template-rows: 30px 30px 30px 30px 30px 30px 30px 30px 30px 30px;
+  margin-left: 20%;
+  margin-top: 15%;
+}
+.wall{
+  border: solid black;
+  grid-row: 1/2;
+  background-color: #000000;
+}
+.exit {
+  background-color: #008000;
+  grid-row: 1 / 2;
+  border: solid black;
+}
+.buitA {
+  background-color: #ffffff;
+  grid-row: 2 / 3;
+  border: solid black;
+}
+
+.wallA{
+  background-color: #000000;
+  color: azure;
+  border: solid black;
+  grid-row: 2/3;
+}
+.buitB {
+  background-color: #ffffff;
+  grid-row: 3/4;
+  border: solid black;
+}
+.enemicB{
+  background-color: #ff0000;
+grid-row: 3/4;
+border: solid black;
+}
+.wallB{
+  border: solid black;
+  grid-row: 3/4;
+  background-color: #000000;
+  color: azure;
+}
+.buitC {
+  background-color: #ffffff;
+  grid-row: 4/5;
+  border: solid black;
+}
+.enemicC{
+  background-color: #ff0000;
+  grid-row: 4/5;
+border: solid black;
+}
+.wallC{
+  border: solid black;
+  grid-row: 4/5;
+  background-color: #000000;
+  color: azure;
+}
+.buitD {
+  background-color: #ffffff;
+  grid-row: 5/6;
+  border: solid black;
+}
+.wallD{
+  border: solid black;
+  grid-row: 5/6;
+  background-color: #000000;
+  color: azure;
+}
+.wallE{
+  border: solid black;
+  grid-row: 6/7;
+  background-color:  #000000;
+  color: azure;
+}
+.buitE {
+  background-color: #ffffff;
+  grid-row: 6/7;
+  border: solid black;
+}
+.objectE {
+  background-color: #0601ff;
+  grid-row: 6/7;
+  border: solid black;
+}
+.wallF{
+  border: solid black;
+  grid-row: 7/8;
+  background-color:   #000000;
+  color: azure;
+}
+.buitF {
+  background-color: #ffffff;
+  grid-row: 7/8;
+  border: solid black;
+}
+.wallG{
+  border: solid black;
+  grid-row: 8/9;
+  background-color:#000000;
+  color: azure;
+}
+.buitG {
+  background-color: #ffffff;
+  grid-row: 8/9;
+  border: solid black;
+}
+.enemicG{
+  background-color: #ff0000;
+  grid-row: 8/9;
+border: solid black;
+}
+.entrada{
+  border: solid black;
+  grid-row: 9/10;
+  background-color: #fbff00d3;
+  color: azure;
+}
+.wallH{
+  border: solid black;
+  grid-row: 9/10;
+  background-color:#000000;
+  color: azure;
+}
+
+.buitH {
+  background-color: #ffffff;
+  grid-row: 9/10;
+  border: solid black;
+}
+.objectH {
+  background-color: #0601ff;
+  grid-row: 9/10;
+  border: solid black;
+}
+.wallI{
+  border: solid black;
+  grid-row: 10/11;
+  background-color:#000000;
+  color: azure;
 }
