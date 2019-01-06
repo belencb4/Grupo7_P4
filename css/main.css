@@ -6,6 +6,9 @@
   align-content: center;
 }
 
+.cami{
+  background-color:#ff0080;
+} 
 
 #gridBag {
   display: grid;
@@ -29,11 +32,13 @@ button {
   border: none;
   border-radius: 5px;
   color: white;
-  height: 30px;
+  height: 40px;
   text-align: center;
   width: 80px;
   font-family: inherit;
   font-size: 14px;
+  background-color: black;
+  margin-top: 15px;
 }
 
 button.delete {
@@ -134,100 +139,100 @@ h2, h1 {
   grid-row: 1 / 2;
   border: solid black;
 }
-.buitA {
+.buit1 {
   background-color: #ffffff;
   grid-row: 2 / 3;
   border: solid black;
 }
 
-.wallA{
+.wall1{
   background-color: #000000;
   color: azure;
   border: solid black;
   grid-row: 2/3;
 }
-.buitB {
+.buit2 {
   background-color: #ffffff;
   grid-row: 3/4;
   border: solid black;
 }
-.enemicB{
+.enemic2{
   background-color: #ff0000;
 grid-row: 3/4;
 border: solid black;
 }
-.wallB{
+.wall2{
   border: solid black;
   grid-row: 3/4;
   background-color: #000000;
   color: azure;
 }
-.buitC {
+.buit3 {
   background-color: #ffffff;
   grid-row: 4/5;
   border: solid black;
 }
-.enemicC{
+.enemic3{
   background-color: #ff0000;
   grid-row: 4/5;
 border: solid black;
 }
-.wallC{
+.wall3{
   border: solid black;
   grid-row: 4/5;
   background-color: #000000;
   color: azure;
 }
-.buitD {
+.buit4{
   background-color: #ffffff;
   grid-row: 5/6;
   border: solid black;
 }
-.wallD{
+.wall4{
   border: solid black;
   grid-row: 5/6;
   background-color: #000000;
   color: azure;
 }
-.wallE{
+.wall5{
   border: solid black;
   grid-row: 6/7;
   background-color:  #000000;
   color: azure;
 }
-.buitE {
+.buit5{
   background-color: #ffffff;
   grid-row: 6/7;
   border: solid black;
 }
-.objectE {
+.object5{
   background-color: #0601ff;
   grid-row: 6/7;
   border: solid black;
 }
-.wallF{
+.wall6{
   border: solid black;
   grid-row: 7/8;
   background-color:   #000000;
   color: azure;
 }
-.buitF {
+.buit6 {
   background-color: #ffffff;
   grid-row: 7/8;
   border: solid black;
 }
-.wallG{
+.wall7{
   border: solid black;
   grid-row: 8/9;
   background-color:#000000;
   color: azure;
 }
-.buitG {
+.buit7 {
   background-color: #ffffff;
   grid-row: 8/9;
   border: solid black;
 }
-.enemicG{
+.enemic7{
   background-color: #ff0000;
   grid-row: 8/9;
 border: solid black;
@@ -238,24 +243,24 @@ border: solid black;
   background-color: #fbff00d3;
   color: azure;
 }
-.wallH{
+.wall8{
   border: solid black;
   grid-row: 9/10;
   background-color:#000000;
   color: azure;
 }
 
-.buitH {
+.buit8 {
   background-color: #ffffff;
   grid-row: 9/10;
   border: solid black;
 }
-.objectH {
+.object8 {
   background-color: #0601ff;
   grid-row: 9/10;
   border: solid black;
 }
-.wallI{
+.wall9{
   border: solid black;
   grid-row: 10/11;
   background-color:#000000;

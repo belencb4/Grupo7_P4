@@ -75,6 +75,7 @@ window.onload = function() {
   console.log(JSON.stringify(partida));*/
   slot = "nueva"
   loadGame();
+  music();
 }
 
 function loadGame() {
@@ -312,17 +313,24 @@ function checkKey(e) {
 
 /* Function that depending of the element in the map, shows the equivalent image */
 function changeImage(sumX, sumY) {
-  switch (mapa[player.estadoPartida.y + sumY][player.estadoPartida.x + sumX]) {
+  let i = player.estadoPartida.y + sumY
+  let x = player.estadoPartida.x + sumX
+  switch (mapa[i][x]) {
     case "W":
+      
+        document.getElementsByClassName('wall'+i).className = "cami";
         elementFound("wall");
         break;
 
     case "O":
         elementFound("object");
+        document.getElementById('object'+x).className = "buit"+i;
         break;
 
     case "E":
         elementFound("enemy");
+        console.log(i);
+        document.getElementById('enemic'+i).className ="buit"+i;
         break;
 
     case "EX":
@@ -918,4 +926,20 @@ function deleteGameAjax() {
       },
     },
     });
+}
+function music() {
+  var audioElement = document.createElement('audio');
+  audioElement.setAttribute('src', 'music/canco.ogg');
+
+  audioElement.setAttribute('autoplay', 'autoplay');
+
+  document.getElementById("play").addEventListener("click", function() {
+    audioElement.currentTime = 0;
+    console.log("hey");
+    audioElement.play();
+  });
+
+  document.getElementById("pause").addEventListener("click", function() {
+    audioElement.pause();
+  });
 }
