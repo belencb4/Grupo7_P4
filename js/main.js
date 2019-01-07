@@ -19,11 +19,11 @@ const map1 = [
 
 const map2 = [
   ["W", "W", "W", "W", "W", "W", "W", "W", "W", "W"],
-  ["W", "B", "B", "E", "O", "W", "B", "E", "B", "W"],
-  ["W", "B", "W", "B", "E", "W", "O", "W", "B", "W"],
+  ["W", "B", "B", "B", "O", "W", "B", "E", "B", "W"],
+  ["W", "B", "W", "B", "B", "W", "O", "W", "B", "W"],
   ["W", "B", "W", "B", "B", "W", "B", "W", "B", "W"],
-  ["W", "B", "W", "B", "W", "W", "W", "W", "B", "W"],
-  ["W", "O", "W", "B", "W", "B", "B", "B", "O", "W"],
+  ["W", "E", "W", "B", "W", "W", "W", "W", "B", "W"],
+  ["W", "B", "W", "B", "W", "B", "B", "B", "O", "W"],
   ["W", "B", "W", "B", "W", "B", "W", "W", "B", "W"],
   ["W", "B", "W", "B", "W", "B", "W", "W", "B", "W"],
   ["EX", "B", "W", "B", "B", "B", "W", "B", "B", "W"],
@@ -48,6 +48,7 @@ var canFight = 0;
 var optionPopup = 0;
 var slots = []
 var saveNow = 0;
+var currentElement = 0;
 
 window.onload = function() {
 
@@ -84,14 +85,19 @@ function loadGame() {
     partida = JSON.parse(responseText);   
     enemigo = partida["enemigo"];
     running = partida["running"];
+    player = partida["player"];
+    mapa = partida["mapa"];
     objetos = partida["objetos"];
     counterEnemies = partida["counterEnemies"];
     counterObjects = partida["counterObjects"];
     turnFight = partida["turnFight"];
     fighting = partida["fighting"];
     firstClick = partida["firstClick"];
-    canFight = partida["canFight"];   
-  });
+    canFight = partida["canFight"]; 
+    createMinimap();  
+    console.log(player);
+
+  });  
   
 }
 
@@ -160,9 +166,12 @@ function startGame() {
   if (running) {
     running = 0;
     enemigo.vida = 8;
-    optionPopup = "start";
-    showpopup();
-    if(level == -2) initPlayerPosition(map1);
+    if(level == -2){
+      optionPopup = "start";
+      document.getElementById("info_text").innerHTML = "Name: <input id='nameText' type='text' name='firstname'><br><input type='button' id='submit_button' value='Submit' onclick='getValueForm()'>";
+      showpopup();
+      initPlayerPosition(map1);
+    }
     else if(level == -1) initPlayerPosition(map2);
     document.onkeydown = checkKey;
   }
@@ -174,6 +183,40 @@ function startGame() {
 /* Convierte lo que hay en el mapa en un archivo de imagen */
 function mapaToImg(x, y) {
   /* TODO */
+}
+
+function createMinimap() {
+  console.log(mapa);
+  
+  const grid = document.getElementById('minimapa');
+  for (let i = 0; i < rows; i++) {
+    for (let j = 0; j < columns; j++) {
+      const cell = document.createElement('section');
+      cell.className = "cell";
+      cell.id = "col" + j + "row" + i;
+      cell.setAttribute('column', j);
+      cell.setAttribute('row', i);
+      grid.appendChild(cell);
+      cell.style.border = "1px solid black";
+      updateMinimap(i, j, cell);
+    }
+  }
+}
+
+function updateMinimap(i, j, cell){
+  if (mapa[i][j] == "B"){
+    cell.style.backgroundColor = "white";
+  } else if (mapa[i][j] == "W") {
+    cell.style.backgroundColor = "black";
+  } else if (mapa[i][j] == "O") {
+    cell.style.backgroundColor = "blue";
+  } else if (mapa[i][j] == "E") {
+    cell.style.backgroundColor = "red";
+  } else if (mapa[i][j] == "EN") {
+    cell.style.backgroundColor = "yellow";
+  } else if (mapa[i][j] == "EX") {
+    cell.style.backgroundColor = "green";
+  }
 }
 
 /* Sets de position and orientation of the player at every move */
@@ -245,7 +288,11 @@ function checkKey(e) {
               sumY = 0;
               sumX = -1;
               if (mapa[player.estadoPartida.y][player.estadoPartida.x - 1] != "W" && mapa[player.estadoPartida.y][player.estadoPartida.x - 1] != "E") {                  
-                if(player.estadoPartida.y < 9 && player.estadoPartida.y > 0 && player.estadoPartida.x < 9 && player.estadoPartida.x > 0) player.estadoPartida.x--;
+                if(player.estadoPartida.y < 9 && player.estadoPartida.y > 0 && player.estadoPartida.x < 9 && player.estadoPartida.x > 0){
+                  var cell = document.getElementById("col" + player.estadoPartida.x + "row" + player.estadoPartida.y);
+                  cell.style.backgroundColor = "white";
+                  player.estadoPartida.x--;
+                }
               }
               break;
               
@@ -253,7 +300,11 @@ function checkKey(e) {
               sumX = 1;
               sumY = 0;                
               if (mapa[player.estadoPartida.y][player.estadoPartida.x + 1] != "W" && mapa[player.estadoPartida.y][player.estadoPartida.x + 1] != "E") {
-                if(player.estadoPartida.x < 9) player.estadoPartida.x++;                    
+                if(player.estadoPartida.x < 9){
+                  var cell = document.getElementById("col" + player.estadoPartida.x + "row" + player.estadoPartida.y);
+                  cell.style.backgroundColor = "white";
+                  player.estadoPartida.x++;  
+                }                  
               }
               break;
 
@@ -261,7 +312,11 @@ function checkKey(e) {
               sumX = 0;
               sumY = -1;              
               if (mapa[player.estadoPartida.y - 1][player.estadoPartida.x] != "W" && mapa[player.estadoPartida.y - 1][player.estadoPartida.x] != "W") {
-                if(player.estadoPartida.y > 0) player.estadoPartida.y--;
+                if(player.estadoPartida.y > 0){
+                  var cell = document.getElementById("col" + player.estadoPartida.x + "row" + player.estadoPartida.y);
+                  cell.style.backgroundColor = "white";
+                  player.estadoPartida.y--;
+                }
               }
               break;
 
@@ -269,7 +324,11 @@ function checkKey(e) {
               sumX = 0;
               sumY = 1;              
               if (mapa[player.estadoPartida.y + 1][player.estadoPartida.x] != "W" && mapa[player.estadoPartida.y + 1][player.estadoPartida.x] != "E") {
-                if(player.estadoPartida.y < 9) player.estadoPartida.y++;
+                if(player.estadoPartida.y < 9){
+                  var cell = document.getElementById("col" + player.estadoPartida.x + "row" + player.estadoPartida.y);
+                  cell.style.backgroundColor = "white";
+                  player.estadoPartida.y++;
+                }
               }
               break;
       }
@@ -306,7 +365,6 @@ function checkKey(e) {
       
   }else if (event.keyCode == enter) { 
         e.preventDefault();  
-        console.log("bloquejo");
       }
   }
 }
@@ -320,6 +378,7 @@ function changeImage(sumX, sumY) {
       
         document.getElementsByClassName('wall'+i).className = "cami";
         elementFound("wall");
+        
         break;
 
     case "O":
@@ -343,9 +402,9 @@ function changeImage(sumX, sumY) {
   } 
 }
 
-
 /* Function which sets de images */
 function elementFound(element){
+  currentElement = element;
   var imagePlayer = document.getElementById("imageScreen");  
   if (element == "walk") {
       if(walk == "1") {
@@ -405,6 +464,12 @@ function elementFound(element){
         for(var j = -1; j < 2; j++){
           if (mapa[player.estadoPartida.y + i][player.estadoPartida.x + j] == "O") {
             mapa[player.estadoPartida.y + i][player.estadoPartida.x + j] = "B";
+            let y = player.estadoPartida.y + i;
+            let x = player.estadoPartida.x + j;
+            var cell = document.getElementById("col" + x + "row" + y);
+            console.log(cell.style.backgroundColor);
+            
+            cell.style.backgroundColor = "white";
           }
         } 
       }
@@ -450,6 +515,8 @@ function clickObject(object) {
 }
 
 function refreshData() {
+  console.log(player);
+  
   document.getElementById("name").innerHTML = "Name: " + player.nombre;
   document.getElementById("lives").innerHTML = "Lives: " + player.vida;
   document.getElementById("level").innerHTML = "Level: " + player.nivel;
@@ -553,6 +620,10 @@ function endFight(){
       for(var j = -1; j < 2; j++){
         if (mapa[player.estadoPartida.y + i][player.estadoPartida.x + j] == "E") {
           mapa[player.estadoPartida.y + i][player.estadoPartida.x + j] = "B";
+          let y = player.estadoPartida.y + i;
+          let x = player.estadoPartida.x + j;
+          var cell = document.getElementById("col" + x + "row" + y);
+          cell.style.backgroundColor = "white";
         }
       } 
     }
@@ -574,6 +645,8 @@ function endFight(){
 }
 
 function addObjectToBag(currentObject){
+  console.log(currentObject);
+  
   if (counterObjects < 8) {
     var bag = document.getElementById("gridBag");
     var imgObject = document.createElement('img');
@@ -584,21 +657,17 @@ function addObjectToBag(currentObject){
     setTimeout(function() {
       imgObject.src = "media/images/" + currentObject + ".png";
       fighting = 0;}, 500);
-    player.mochila[counterObjects] = currentObject;
-    console.log(counterObjects);
+    player.mochila[counterObjects-1] = currentObject;
   }
   else {
     alert("You can have a maximum of 8 objects in your bag.");
   }
- 
 }
 
 function saveGame() {
-
  document.getElementById("info_text").innerHTML = "Select slot. Insert 1 or 2: <input id='nameText' type='text' name='firstname'><br><input type='button' id='submit_button' value='Submit' onclick='getValueForm()'>";
  optionPopup = "save";
  showpopup(); 
-  
 }
 
 function deleteGame() {
@@ -625,7 +694,6 @@ function recoverGame() {
   },
   });
 }
-
 /*var esborrarPartida = $.ajax({
   type: "DELETE",
   url: "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot=nueva", 
@@ -635,7 +703,6 @@ function recoverGame() {
     },
   },
   });
-
  /*
   /*var guardarPartida = $.ajax({
     type: "POST",
@@ -650,7 +717,6 @@ function recoverGame() {
   });
   
 //API >> Comunicació JSON 
-
 /*var descarregarLlistaSlots = $.ajax({
   type: "GET",
   url: "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145", 
@@ -661,7 +727,6 @@ function recoverGame() {
     },
   },
   });
-
 var esborrarPartida = $.ajax({
   type: "DELETE",
   url: "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot="+slot, 
@@ -671,8 +736,6 @@ var esborrarPartida = $.ajax({
     },
   },
   });
-
-
 var atacEnemic = $.ajax({
   method: "GET",
   url: "http://puigpedros.salleurl.edu/pwi/pac4/ataque.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&ataque="+enemigo.ataque+"&defensa="+enemigo.defensa,
@@ -693,7 +756,6 @@ var atacEnemic = $.ajax({
   context: document.body
 }).done(function() {
 });
-
 var atacJugador = $.ajax({
   method: "GET",
    url: "http://puigpedros.salleurl.edu/pwi/pac4/ataque.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&ataque="+player.ataque+"&defensa="+player.defensa,
@@ -713,7 +775,6 @@ var atacJugador = $.ajax({
   context: document.body
 }).done(function() {
 });
-
 */
 
 // Variables que necessitem que siguin globals : slot(nueva,1,2), partida(objecte que conte tot el que volem guardar de la partida 
@@ -805,7 +866,9 @@ function getValueForm() {
           partida["turnFight"] = turnFight;
           partida["firstClick"] = firstClick;
           partida["canFight"] = canFight;
-          partida["image"] =  document.getElementById("imageScreen").src;
+          partida["image"] =  currentElement;
+          console.log(partida);
+
 
           $.post('http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot=' + slot, "json=" + JSON.stringify(partida), function(){ 
            alert("Game saved at slot " + slot); });
@@ -888,9 +951,9 @@ function getValueForm() {
             if (slot == 1 || slot == 2) {
               $.get( "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot=" + slot, function(responseText) {
                   partida = JSON.parse(responseText);
-                  console.log(partida);
                   player = partida["player"];
                   enemigo = partida["enemigo"];
+                  mapa = partida["mapa"];
                   objetos = partida["objetos"];
                   counterEnemies = partida["counterEnemies"];
                   counterObjects = partida["counterObjects"];
@@ -899,11 +962,23 @@ function getValueForm() {
                   running = partida["running"];
                   firstClick = partida["firstClick"];
                   canFight = partida["canFight"];
-                  document.getElementById("imageScreen").src = partida["image"];
+
+                  if(partida["image"] == "object") {                    
+                    document.getElementById("imageScreen").src = "media/images/" + partida["image"] + player.mochila[player.mochila.length - 1] + ".png";
+                  }else {                    
+                    document.getElementById("imageScreen").src = "media/images/" + partida["image"] + ".png";
+                  }
                   refreshData();
                   document.getElementById("gridBag").innerHTML = "";
+                  
                   for (let i = 0; i < player.mochila.length; i++) {
                     addObjectToBag(player.mochila[i]);
+                  }
+                  for (let i = 0; i < rows; i++) {
+                    for (let j = 0; j < columns; j++) {
+                      var cell = document.getElementById("col" + j + "row" + i);
+                      updateMinimap(i, j, cell);
+                    }
                   }
                   alert("Game at slot " + slot + " recovered successfully!");
                   hidepopup();
@@ -927,6 +1002,10 @@ function deleteGameAjax() {
     },
     });
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> 3fa98221dd9f38db6ef6f96163ab890a8e81ad50
 function music() {
   var audioElement = document.createElement('audio');
   audioElement.setAttribute('src', 'music/canco.ogg');
