@@ -14,7 +14,7 @@
     <script type="text/javascript" src="js/juego.js"></script>
     <script type="text/javascript" src="js/main.js"></script>
   </head>
-  <body>
+  <body bgcolor="#E6E6FA">
     <head>
       <h1>Dungeon Master AJAX Game</h1>
     </head>
@@ -24,6 +24,8 @@
           <button class = "save" onclick="saveGame()"> Save </button>
           <button class = "recover" onclick="recoverGame()"> Recover </button>
           <button class = "delete" onclick="deleteGame()"> Delete </button>
+          <button type="button" value="Play" id="play">Play Music</button>
+	      <button type="button" value="Pause" id="pause">Pause Music</button>
           
           <section class = "commands">
 
@@ -43,10 +45,12 @@
             <h2>Player Screen</h2>
             <img id="imageScreen" src="media/images/walk1.png" alt="player">
         </section>
-        <section id = "minimapa">
-            <h2>Map</h2>
-            <canvas id="minimapCanvas" height="300" width="300"></canvas>  
-        </section> 
+        <section class="minimap">
+                <h2>Map</h2>
+            <section id="minimapa">
+                
+            </section>
+        </section>   
         <section id = "bag">
             <h2>Bag</h2>
             <p id="bagFont">First click to select object for the right hand. Second click to select weapon for the left hand.</p>
