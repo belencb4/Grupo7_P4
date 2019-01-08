@@ -1,9 +1,14 @@
+//Declarem les constants i les variables globals per tot el joc.
+
 const rightArrow = 39;
 const leftArrow = 37;
 const upArrow = 38;
 const downArrow = 40;
 const spaceKey = 32;
 const enter = 13;
+const rows = 10;
+const columns = 10;
+
 const map1 = [
   ["W", "W", "W", "W", "W", "W", "W", "EX", "W", "W"],
   ["W", "B", "B", "B", "B", "B", "W", "B", "W", "W"],
@@ -52,35 +57,19 @@ var currentElement = 0;
 
 window.onload = function() {
 
-  /*$.ajax({
-  type: "DELETE",
-  url: "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot=nueva", 
-  statusCode: {
-    404: function() {
-      alert( "No existeix cap partida en el slot indicat" );
-    },
-  },
-  });*/
-
-  /*partida["player"] = player;
-  partida["enemigo"] = enemigo;
-  partida["mapa"] = map1;
-  partida["objetos"] = objetos;
-  partida["counterEnemies"] = counterEnemies;
-  partida["counterObjects"] = counterObjects;
-  partida["fighting"] = fighting;
-  partida["running"] = running;
-  partida["turnFight"] = turnFight;
-  partida["firstClick"] = firstClick;
-  partida["canFight"] = canFight;
-  console.log(JSON.stringify(partida));*/
   slot = "nueva"
+  
+  //Carreguem el joc.
   loadGame();
+  
+  //Carreguem la musica que tindra el nostre joc.
   music();
 }
 
 function loadGame() {
+  //Variable que indica que hem començat el joc.
   running = 1;
+  //Cridem a l'api per obtenir tota l'informació de la partida, ja sigui una nova partida (slot = nueva) o una partida guardada (slot = 1 o slot = 2).
   $.get( "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot=" + slot, function(responseText) {
     partida = JSON.parse(responseText);   
     enemigo = partida["enemigo"];
@@ -95,8 +84,6 @@ function loadGame() {
     firstClick = partida["firstClick"];
     canFight = partida["canFight"]; 
     createMinimap();  
-    console.log(player);
-
   });  
   
 }
@@ -106,26 +93,7 @@ function iniciarJuego() {
   
 }
 
-/*function initObjetos() {
-  objetos["garrote"] = {ataque:4, defensa:2, status:0}; //Si status = 0, el objeto no se ha cogido
-  objetos["espada"] = {ataque:4, defensa:3, status:0};
-  objetos["llave"] = {ataque:1, defensa:1, status:0};
-  objetos["pistola"] = {ataque:5, defensa:1, status:0};
-  objetos["escudo"] = {ataque:1, defensa:5, status:0}
-  objetos["ametralladora"] = {ataque:5, defensa:2, status:0};
-  objetos["hacha"] = {ataque:3, defensa:4, status:0};
-  objetos["bomba"] = {ataque:5, defensa:3, status:0};
-  objetos["tronco"] = {ataque:2, defensa:0, status:1};
-  objetos["granada"] = {ataque:4, defensa:0, status:1};
-  objetos["lanza"] = {ataque:2, defensa:1, status:1};
-  objetos["puerta"] = {ataque:0, defensa:4, status:1};
-  objetos["escopeta"] = {ataque:4, defensa:0, status:1};
-  objetos["puñal"] = {ataque:3, defensa:2, status:1};
-  //console.log(Object.keys(objetos)[2]);
-}*/
-
-
-/* Init del mapa y del jugador*/
+/* Inicialització del mapa y del jugador*/
 function initPlayerPosition(currentMap) {
   for (let i = 0; i < 10; i++) {
     for (let j = 0; j < currentMap[i].length; j++) {
@@ -134,13 +102,13 @@ function initPlayerPosition(currentMap) {
         player.estadoPartida.x = j;
         player.estadoPartida.y = i;
         if (j == 0) {
-          player.estadoPartida.direccion = 2; //Este
+          player.estadoPartida.direccion = 2; //Est
         }
         else if(i == 9) {
-          player.estadoPartida.direccion = 0; //Norte
+          player.estadoPartida.direccion = 0; //Nord
         }
         else if (j == 9) {
-          player.estadoPartida.direccion = 3; //Oeste
+          player.estadoPartida.direccion = 3; //Oest
         }
         else if(i == 0) {
           player.estadoPartida.direccion = 1; //Sud
@@ -152,15 +120,16 @@ function initPlayerPosition(currentMap) {
   mapa = currentMap;
 }
 
-/* function initPlayer() {
-  player.nivel = level;
-  player.vida = 10;
-  player.xp = 0;
-  player.ataque = 0;
-  player.defensa = 0;
-  player.manoderecha = "";
-  player.manoizquierda = "";
-}*/
+///////////////////////////////////////////////////////////////////////////////////*
+  /*comentariooooooooooooooooooooooooooooooooooooo*/
+  ///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 function startGame() {  
   if (running) {
@@ -185,9 +154,8 @@ function mapaToImg(x, y) {
   /* TODO */
 }
 
+//Creem el minimapa
 function createMinimap() {
-  console.log(mapa);
-  
   const grid = document.getElementById('minimapa');
   for (let i = 0; i < rows; i++) {
     for (let j = 0; j < columns; j++) {
@@ -202,7 +170,7 @@ function createMinimap() {
     }
   }
 }
-
+//Llegim la matriu del mapa que estiguem utilitzant ja sigui map1 o map2 o un mapa de una partida ja jugada i el pintem.
 function updateMinimap(i, j, cell){
   if (mapa[i][j] == "B"){
     cell.style.backgroundColor = "white";
@@ -220,27 +188,28 @@ function updateMinimap(i, j, cell){
 }
 
 /* Sets de position and orientation of the player at every move */
+//Comprovem quina tecla ens ha pulsat i en quina direcció estem mirant
 function checkKey(e) {
-  
-  //e.preventDefault();  
-  e = e || window.event;
-  if(!fighting) {
    
+  e = e || window.event;
+  //Si no estic lluitant escolto el teclat, pel contrari no faig cas.
+  if(!fighting) {
+  //Sempre tinc quatre possibilitats per mourem depenent d'on estigui orientat el jugador.
   if(event.keyCode == rightArrow) {
       switch (player.estadoPartida.direccion) {
-          case 3: //Oeste - Left
+          case 3: //Oest - Left
               sumY = -1;
               sumX = 0;
               player.estadoPartida.direccion = 0;
               break;
               
-          case 2: //Este - Right
+          case 2: //Est - Right
               sumX = 0;
               sumY = 1;
               player.estadoPartida.direccion = 1;
               break;
 
-          case 0: //Norte - Straight
+          case 0: //Nord - Straight
               sumX = 1;
               sumY = 0;
               player.estadoPartida.direccion = 2;
@@ -282,6 +251,7 @@ function checkKey(e) {
       }
       changeImage(sumX, sumY);
   }
+  //Unicament ens movem tocant la fletxa cap amunt, per tant a mesura que ens movem canviem la casella del mapa per saber on esta el jugador. 
   else if(event.keyCode == upArrow) {
       switch (player.estadoPartida.direccion) {
           case 3:
@@ -371,25 +341,35 @@ function checkKey(e) {
 
 /* Function that depending of the element in the map, shows the equivalent image */
 function changeImage(sumX, sumY) {
-  let i = player.estadoPartida.y + sumY
-  let x = player.estadoPartida.x + sumX
-  switch (mapa[i][x]) {
+  var cell = document.getElementById("col" + player.estadoPartida.x + "row" + player.estadoPartida.y);
+  cell.style.backgroundColor = "yellow";
+  //En el cas que sigui una sortida em d'actualitzar el mapa del seguent nivell.
+  if (mapa[player.estadoPartida.y][player.estadoPartida.x] == "EX") {
+    level = -1;
+    player.nivel = -1;
+    mapa = map2;
+    currentMap = map2;
+    for (let i = 0; i < rows; i++) {
+      for (let j = 0; j < columns; j++) {
+        var cell = document.getElementById("col" + j + "row" + i);
+        updateMinimap(i, j, cell);
+      }
+    }
+    running = 1;
+    startGame();
+  }
+  switch (mapa[player.estadoPartida.y + sumY][player.estadoPartida.x + sumX]) {
     case "W":
-      
-        document.getElementsByClassName('wall'+i).className = "cami";
         elementFound("wall");
         
         break;
 
     case "O":
         elementFound("object");
-        document.getElementById('object'+x).className = "buit"+i;
         break;
 
     case "E":
         elementFound("enemy");
-        console.log(i);
-        document.getElementById('enemic'+i).className ="buit"+i;
         break;
 
     case "EX":
@@ -414,7 +394,19 @@ function elementFound(element){
           walk = "1";
       }
       imagePlayer.src = "media/images/" + element + walk + ".png";
-  } 
+  }
+
+  ///////////////////////////////////////////////////////////////////////////////////*
+  /*comentariooooooooooooooooooooooooooooooooooooo*/
+  ///////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
   else if (element == "enemy") {
     turnFight = 0;
       if(counterEnemies < 4) {
@@ -432,10 +424,9 @@ function elementFound(element){
         enemigo.ataque = counterEnemies - 2;
         enemigo.defensa = counterEnemies - 1;
       }
-      console.log(enemigo);
       
       enemigo.xp = counterEnemies*10;
-      enemigo.img = "media/images/" + element + ".png"; //TODO change image enemy
+      enemigo.img = "media/images/" + element + ".png";
       imagePlayer.src = enemigo.img;
       if (!canFight) {
         alert("Please select two objects for the fight");
@@ -446,6 +437,16 @@ function elementFound(element){
         attackValue = player.ataque;
         defenseValue = enemigo.defensa + objetos[enemigo.objetos].defensa;
         enemigo.vida = 8;
+        //Cridem a la api per saber quants punts perdo------------------
+        ///////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////
+        ///////////////////////////////////////////////////////////////////////////////
         ajaxASYNC.request("http://puigpedros.salleurl.edu/pwi/pac4/ataque.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&ataque="+ attackValue + "&defensa="+ defenseValue);
         let fightData = document.getElementById("fight");
         fightData.style.display = "block";
@@ -682,105 +683,6 @@ function recoverGame() {
   showpopup(); 
 }
 
-/*function descarregarPartida() {
-  return $.ajax({
-  type: "GET",
-  url: "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot=nueva", 
-  contentType: 'application/json', 
-  statusCode: {
-    404: function() {
-      alert( "No existeix cap partida en el slot indicat" );
-    },
-  },
-  });
-}
-/*var esborrarPartida = $.ajax({
-  type: "DELETE",
-  url: "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot=nueva", 
-  statusCode: {
-    404: function() {
-      alert( "No existeix cap partida en el slot indicat" );
-    },
-  },
-  });
- /*
-  /*var guardarPartida = $.ajax({
-    type: "POST",
-    url: "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot="+slot, 
-    contentType: 'application/json', 
-    data: JSON.stringify(partida),
-    statusCode: {
-      404: function() {
-        alert( "El slot no está libre, borra un slot y podras guardarla" );
-      }
-    },
-  });
-  
-//API >> Comunicació JSON 
-/*var descarregarLlistaSlots = $.ajax({
-  type: "GET",
-  url: "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145", 
-  contentType: 'application/json', 
-  statusCode: {
-    404: function() {
-      alert( "No existeix cap partida en el slot indicat" );
-    },
-  },
-  });
-var esborrarPartida = $.ajax({
-  type: "DELETE",
-  url: "http://puigpedros.salleurl.edu/pwi/pac4/partida.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&slot="+slot, 
-  statusCode: {
-    404: function() {
-      alert( "No existeix cap partida en el slot indicat" );
-    },
-  },
-  });
-var atacEnemic = $.ajax({
-  method: "GET",
-  url: "http://puigpedros.salleurl.edu/pwi/pac4/ataque.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&ataque="+enemigo.ataque+"&defensa="+enemigo.defensa,
-  
-  statusCode: {
-    404: function() {
-      alert( "No ha funcionat" );
-    },
-    200: function restarVides(){
-      player.vida+=AJAX;
-      if(player.vida>10){
-        player.vida = 10;
-      }else if(player.vida<0){
-        player.vida = 0;
-      }  
-    }
-  },
-  context: document.body
-}).done(function() {
-});
-var atacJugador = $.ajax({
-  method: "GET",
-   url: "http://puigpedros.salleurl.edu/pwi/pac4/ataque.php?token=eeaa85c0-00db-4c53-887f-3373acaa5145&ataque="+player.ataque+"&defensa="+player.defensa,
-  statusCode: {
-    404: function() {
-      alert( "No ha funcionat" );
-    },
-    200: function restarVides(){
-      enemigo.vida+=AJAX;
-      if(enemigo.vida>3){
-        enemigo.vida = 3;
-      }else if(enemigo.vida<0){
-        enemigo.vida = 0;
-      }
-    }  
-  },
-  context: document.body
-}).done(function() {
-});
-*/
-
-// Variables que necessitem que siguin globals : slot(nueva,1,2), partida(objecte que conte tot el que volem guardar de la partida 
-// entenc que player,objetos i el mapa ja que si a la partida que ha guardat havia recollit tot ho haurem de canviar del mapa i 
-// sera aixo el que enviem), player  i enemigo entenc que ja son globals no?? 
-
 function showpopup() {
   $("#popup_box").fadeToggle();
   $("#popup_box").css({"visibility":"visible","display":"block"});
@@ -1002,13 +904,10 @@ function deleteGameAjax() {
     },
     });
 }
-<<<<<<< HEAD
-=======
 
->>>>>>> 3fa98221dd9f38db6ef6f96163ab890a8e81ad50
 function music() {
   var audioElement = document.createElement('audio');
-  audioElement.setAttribute('src', 'music/canco.ogg');
+  audioElement.setAttribute('src', 'media/music/canco.ogg');
 
   audioElement.setAttribute('autoplay', 'autoplay');
 
